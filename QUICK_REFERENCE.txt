@@ -1,0 +1,203 @@
+================================================================================
+                    EASYCONVERSION WEB - QUICK REFERENCE
+================================================================================
+
+PROJECT TYPE: Desktop Application (Electron + Next.js)
+PLATFORM: macOS, Windows, Linux
+LANGUAGE: TypeScript/React (Frontend), TypeScript/Node.js (Backend)
+UI LANGUAGE: Korean
+
+================================================================================
+                            CORE FEATURES
+================================================================================
+
+1. YOUTUBE DOWNLOAD
+   ├─ MP4 (video + audio) download
+   ├─ MP3 (audio only) download
+   └─ Real-time progress tracking
+
+2. MEDIA CONVERSION
+   ├─ Formats: MP4, MP3, MOV, WAV
+   ├─ Batch conversion support
+   ├─ Multi-file processing
+   └─ Progress tracking per file
+
+3. MEDIA EDITING
+   ├─ Split by timepoints or segments
+   ├─ Merge multiple media files
+   └─ Per-segment progress tracking
+
+4. DOCUMENT CONVERSION
+   ├─ PDF ↔ HTML/Markdown
+   ├─ DOCX ↔ PDF/HTML/Markdown
+   ├─ Markdown ↔ PDF/HTML/DOCX
+   └─ ~12+ conversion paths supported
+
+5. DOCUMENT OPERATIONS
+   ├─ Merge PDFs
+   ├─ Split by range, page count, heading
+   └─ Batch processing
+
+6. FILE MANAGEMENT
+   ├─ Session-based uploads (24h retention)
+   ├─ Drag-and-drop file reordering
+   ├─ Auto-cleanup (24h+)
+   └─ Storage monitoring
+
+7. APP BUILDING
+   ├─ DMG build for macOS
+   ├─ Auto-install to Applications folder
+   └─ Real-time build progress logs
+
+================================================================================
+                          TECHNOLOGY STACK
+================================================================================
+
+DESKTOP FRAMEWORK
+├─ Electron 39.2.6
+└─ Spawns Next.js dev/prod server on port 9005
+
+FRONTEND
+├─ Next.js 15
+├─ React 18
+├─ TypeScript 5
+├─ Tailwind CSS 3
+├─ Radix UI (components)
+├─ dnd-kit (drag-and-drop)
+└─ Zustand (state management)
+
+BACKEND (Node.js)
+├─ Next.js API Routes
+├─ Server-Sent Events (SSE) for progress
+├─ Formidable (file upload streaming)
+├─ fluent-ffmpeg (media processing)
+├─ pdf-lib (PDF manipulation)
+├─ Mammoth (DOCX→HTML)
+├─ docx (HTML→DOCX)
+├─ marked (Markdown→HTML)
+├─ ytdl-core (YouTube download)
+└─ html-pdf-node (HTML→PDF)
+
+UI COMPONENTS
+├─ Radix UI primitives
+├─ Lucide React icons (60+)
+├─ Tailwind CSS utilities
+├─ Custom toast notifications
+└─ Progress bars and log viewers
+
+================================================================================
+                         FILE STRUCTURE
+================================================================================
+
+KEY DIRECTORIES
+├─ /app               - Next.js app (pages, API routes)
+├─ /components        - React components
+│  ├─ /tabs          - 7 feature tabs
+│  ├─ /common        - Shared components
+│  ├─ /layout        - Layout wrapper
+│  └─ /ui            - Radix UI wrappers
+├─ /lib              - Business logic
+│  ├─ ffmpeg.ts      - Media conversion
+│  ├─ youtube.ts     - YouTube download
+│  ├─ document-converter.ts - Doc conversions
+│  └─ ... (split, merge, utils)
+├─ /store            - Zustand store (state)
+├─ /types            - TypeScript interfaces
+├─ /electron         - Electron main/preload
+├─ /public/downloads - Output files (HTTP-served)
+└─ /tmp/uploads      - Temporary uploads
+
+API ROUTES (18 endpoint groups)
+├─ /api/upload              - File upload
+├─ /api/media/convert|split|merge
+├─ /api/document/convert|merge|split|page-count
+├─ /api/youtube/download|info
+├─ /api/open-folder         - Cross-platform folder open
+├─ /api/cleanup/auto|uploads
+├─ /api/project-files/list|delete
+├─ /api/build-dmg|build-app
+
+================================================================================
+                        SYSTEM REQUIREMENTS
+================================================================================
+
+RUNTIME
+├─ FFmpeg binary (for media conversion)
+│  ├─ Path: /opt/homebrew/bin/ffmpeg
+│  └─ FFprobe: /opt/homebrew/bin/ffprobe
+├─ Node.js (included in packaged Electron)
+└─ macOS 10.13.0+, Windows 7+, Modern Linux
+
+FILE SIZE LIMITS
+├─ Max file size: 50GB
+├─ Max upload timeout: 5 minutes
+├─ Session retention: 24 hours
+
+DEPENDENCIES
+├─ Total npm packages: 200+
+├─ Main dependencies: 30+
+├─ Dev dependencies: 10+
+
+================================================================================
+                       DATA FLOW EXAMPLE
+================================================================================
+
+MEDIA CONVERSION FLOW:
+  User Input
+    ↓
+  File Upload → /api/upload
+    ↓ (saved to tmp/uploads/{sessionId}/)
+  Zustand Store Update
+    ↓
+  User Clicks Convert
+    ↓
+  /api/media/convert Request
+    ↓ Backend:
+  ├─ Create output directory
+  ├─ Spawn FFmpeg process
+  ├─ Track progress
+  └─ Stream progress via SSE (ReadableStream)
+    ↓ Frontend:
+  ├─ Receive SSE updates
+  ├─ Update progress bar
+  ├─ Log messages
+  └─ Show download link
+
+================================================================================
+                      MIGRATION TO TAURI NOTES
+================================================================================
+
+WHAT CHANGES
+├─ Electron → Tauri Rust backend
+├─ Next.js server → Tauri dev server
+├─ electron-builder.yml → tauri.conf.json
+├─ IPC minimal → IPC for system operations
+└─ Streaming SSE → Command-based updates
+
+WHAT STAYS THE SAME
+├─ React frontend (100% compatible)
+├─ Zustand state management
+├─ Tailwind CSS & Radix UI
+├─ FFmpeg/document/YouTube logic
+└─ All npm packages (mostly)
+
+CAREFUL PLANNING NEEDED FOR
+├─ Large file uploads (Tauri approach)
+├─ Streaming progress (command invokes)
+├─ Session/file serving
+├─ Development workflow
+└─ Permission scopes (tauri.conf.json)
+
+================================================================================
+                         QUICK STATS
+================================================================================
+
+UI TABS: 7 major feature tabs
+API ROUTES: 18 endpoint groups
+SUPPORTED FORMATS: 9 (4 media + 5 document)
+CONVERSION PATHS: 12+
+COMPONENTS: 20+ custom components
+DEPENDENCIES: 200+ npm packages
+TOTAL SIZE: ~500MB+ (with node_modules)
+
+================================================================================

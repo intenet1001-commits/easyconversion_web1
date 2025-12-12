@@ -1,0 +1,79 @@
+appId: com.easyconversion.app
+productName: EasyConversion
+copyright: Copyright © 2025 CS & Company
+
+asar: true
+
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - electron/**/*
+  - .next/**/*
+  - node_modules/**/*
+  - package.json
+  - next.config.js
+  - public/**/*
+  - "!dist/**/*"
+  - "!build/**/*"
+  - "!tmp/**/*"
+  - "!.next-prod/**/*"
+  - "!node_modules/@img/sharp-darwin-x64/**/*"
+  - "!node_modules/@img/sharp-libvips-darwin-x64/**/*"
+
+asarUnpack:
+  - "**/*.node"
+  - ".next/**/*"
+  - "node_modules/next/**/*"
+  - "node_modules/@next/**/*"
+  - "node_modules/@swc/**/*"
+  - "node_modules/styled-jsx/**/*"
+  - "node_modules/react/**/*"
+  - "node_modules/react-dom/**/*"
+  - "node_modules/sharp/**/*"
+  - "node_modules/@img/sharp-darwin-arm64/**/*"
+  - "node_modules/@img/sharp-libvips-darwin-arm64/**/*"
+  - "node_modules/formidable/**/*"
+  - "node_modules/fluent-ffmpeg/**/*"
+  - "node_modules/pdf-lib/**/*"
+  - "public/**/*"
+
+mac:
+  category: public.app-category.productivity
+  icon: build/icon.icns
+  target:
+    - dmg
+    - zip
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  darkModeSupport: true
+  minimumSystemVersion: "10.13.0"
+
+dmg:
+  title: ${productName} ${version}
+  icon: build/icon.icns
+  iconSize: 100
+  window:
+    width: 660
+    height: 400
+  contents:
+    - x: 180
+      y: 170
+      type: file
+    - x: 480
+      y: 170
+      type: link
+      path: /Applications
+
+win:
+  icon: build/icon.ico
+  target:
+    - nsis
+
+linux:
+  icon: build/icon.png
+  target:
+    - AppImage
+    - deb
+
+publish: null
