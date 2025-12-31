@@ -32,12 +32,13 @@ export function ExtractArchiveTab() {
     for (const file of acceptedFiles) {
       // ZIP 파일 또는 분할 압축 파일인지 확인
       const isZipFile = file.name.toLowerCase().endsWith('.zip');
-      const isSplitFile = /\.(zip|z|7z)\.\d{3}$/i.test(file.name);
+      // .zip.001, .zip.002 형식 또는 .z01, .z02 형식 지원
+      const isSplitFile = /\.(zip|7z)\.\d{3}$/i.test(file.name) || /\.z\d{2}$/i.test(file.name);
 
       if (!isZipFile && !isSplitFile) {
         toast({
           title: '지원하지 않는 파일 형식',
-          description: 'ZIP 파일 또는 분할 압축 파일(.zip.001 등)만 지원합니다.',
+          description: 'ZIP 파일 또는 분할 압축 파일(.zip.001, .z01 등)만 지원합니다.',
           variant: 'destructive',
         });
         continue;
@@ -273,8 +274,8 @@ export function ExtractArchiveTab() {
     }
   };
 
-  // 분할 파일 여부 확인
-  const isSplitArchive = files.some(f => /\.(zip|z|7z)\.\d{3}$/i.test(f.name));
+  // 분할 파일 여부 확인 (.zip.001 또는 .z01 형식)
+  const isSplitArchive = files.some(f => /\.(zip|7z)\.\d{3}$/i.test(f.name) || /\.z\d{2}$/i.test(f.name));
 
   return (
     <div className="space-y-6">
