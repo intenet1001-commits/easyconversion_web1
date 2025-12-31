@@ -19,6 +19,8 @@ import { MediaMergeTab } from '@/components/tabs/MediaMergeTab';
 import { DocumentConvertTab } from '@/components/tabs/DocumentConvertTab';
 import { DocumentMergeTab } from '@/components/tabs/DocumentMergeTab';
 import { DocumentSplitTab } from '@/components/tabs/DocumentSplitTab';
+import { SplitArchiveTab } from '@/components/tabs/SplitArchiveTab';
+import { ExtractArchiveTab } from '@/components/tabs/ExtractArchiveTab';
 
 export default function Home() {
   const { activeTab, setActiveTab, sessionId, setSessionId, addFile } = useConversionStore();
@@ -42,6 +44,10 @@ export default function Home() {
     // 이전 세션 복구 가능 여부 확인
     const previousSession = restoreSession();
 
+    // 항상 새로운 세션 ID 생성 (기능 사용을 위해 필수)
+    const newSessionId = generateSessionId();
+    setSessionId(newSessionId);
+
     if (previousSession && previousSession.uploadedFiles.length > 0) {
       setCanRestoreSession(true);
       toast({
@@ -49,10 +55,6 @@ export default function Home() {
         description: '이전에 작업하던 파일을 복구할 수 있습니다.',
         duration: 10000,
       });
-    } else {
-      // 이전 세션이 없으면 새로 생성
-      const newSessionId = generateSessionId();
-      setSessionId(newSessionId);
     }
 
     // 페이지 언로드 시 cleanup 호출
@@ -639,7 +641,7 @@ export default function Home() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="youtube">YouTube</TabsTrigger>
           <TabsTrigger value="media-convert">미디어 변환</TabsTrigger>
           <TabsTrigger value="media-split">비디오 분할</TabsTrigger>
@@ -647,6 +649,8 @@ export default function Home() {
           <TabsTrigger value="doc-convert">문서 변환</TabsTrigger>
           <TabsTrigger value="doc-merge">문서 병합</TabsTrigger>
           <TabsTrigger value="doc-split">문서 분할</TabsTrigger>
+          <TabsTrigger value="split-archive">분할 압축</TabsTrigger>
+          <TabsTrigger value="extract-archive">압축 풀기</TabsTrigger>
         </TabsList>
 
         <TabsContent value="youtube" className="mt-6">
@@ -669,6 +673,12 @@ export default function Home() {
         </TabsContent>
         <TabsContent value="doc-split" className="mt-6">
           <DocumentSplitTab />
+        </TabsContent>
+        <TabsContent value="split-archive" className="mt-6">
+          <SplitArchiveTab />
+        </TabsContent>
+        <TabsContent value="extract-archive" className="mt-6">
+          <ExtractArchiveTab />
         </TabsContent>
       </Tabs>
 
