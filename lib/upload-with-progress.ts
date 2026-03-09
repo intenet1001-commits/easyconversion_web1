@@ -56,7 +56,17 @@ export async function uploadWithProgress({
         });
         resolve(response);
       } else {
-        reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
+        console.error('[UPLOAD] Error response:', xhr.responseText);
+        let errorMsg = `Upload failed with status ${xhr.status}: ${xhr.statusText}`;
+        try {
+          const errorData = JSON.parse(xhr.responseText);
+          if (errorData.error) {
+            errorMsg = `Upload failed: ${errorData.error}`;
+          }
+        } catch (e) {
+          // JSON 파싱 실패 시 원본 에러 메시지 사용
+        }
+        reject(new Error(errorMsg));
       }
     });
 

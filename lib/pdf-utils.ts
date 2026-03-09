@@ -1,10 +1,11 @@
-import { PDFDocument } from 'pdf-lib';
 import { readFile, writeFile } from 'fs/promises';
+import pdfParse from 'pdf-parse';
 
 /**
  * 여러 PDF 파일을 하나로 병합
  */
 export async function mergePDFs(inputPaths: string[], outputPath: string): Promise<void> {
+  const { PDFDocument } = await import('pdf-lib');
   const mergedPdf = await PDFDocument.create();
 
   for (const inputPath of inputPaths) {
@@ -30,6 +31,7 @@ export async function splitPDF(
   startPage: number, // 1-based
   endPage: number     // 1-based
 ): Promise<void> {
+  const { PDFDocument } = await import('pdf-lib');
   const pdfBytes = await readFile(inputPath);
   const pdf = await PDFDocument.load(pdfBytes);
 
@@ -60,6 +62,6 @@ export async function splitPDF(
  */
 export async function getPDFPageCount(filePath: string): Promise<number> {
   const pdfBytes = await readFile(filePath);
-  const pdf = await PDFDocument.load(pdfBytes);
-  return pdf.getPageCount();
+  const data = await pdfParse(pdfBytes);
+  return data.numpages;
 }

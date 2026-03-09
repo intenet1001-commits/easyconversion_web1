@@ -5,6 +5,25 @@ import * as XLSX from 'xlsx';
 import fs from 'fs/promises';
 import path from 'path';
 import { marked } from 'marked';
+import { createWorker } from 'tesseract.js';
+
+// Dynamic imports to avoid build-time issues
+let pdfParse: any = null;
+let pdfImgConvert: any = null;
+
+async function getPdfParse() {
+  if (!pdfParse) {
+    pdfParse = (await import('pdf-parse')).default;
+  }
+  return pdfParse;
+}
+
+async function getPdfImgConvert() {
+  if (!pdfImgConvert) {
+    pdfImgConvert = await import('pdf-img-convert');
+  }
+  return pdfImgConvert;
+}
 
 export interface ConvertDocumentOptions {
   inputPath: string;
@@ -81,63 +100,220 @@ export async function convertDocument({
 // ============= PDF 변환 함수들 =============
 
 async function pdfToHtml(inputPath: string, outputPath: string, onProgress?: (progress: number) => void): Promise<void> {
+  onProgress?.(10);
+
+  const pdfBuffer = await fs.readFile(inputPath);
+
+  onProgress?.(20);
+
+  // First, try to extract text using pdf-parse
+  const pdfParseModule = await getPdfParse();
+  const pdfData = await pdfParseModule(pdfBuffer);
+  let fullText = pdfData.text.trim();
+  const pageCount = pdfData.numpages;
+
   onProgress?.(30);
 
-  const pdfBytes = await fs.readFile(inputPath);
-  const pdfDoc = await PDFDocument.load(pdfBytes);
-  const pageCount = pdfDoc.getPageCount();
+  // If text extraction yields little to no content, it's likely an image-based PDF
+  // Use OCR to extract text
+  if (fullText.length < 100) {
+    console.log('Text extraction yielded minimal content. Using OCR...');
+    fullText = await extractTextWithOCR(inputPath, pageCount, onProgress);
+  }
 
-  onProgress?.(50);
+  onProgress?.(70);
 
-  let html = `<!DOCTYPE html>
+  // Convert text content to HTML with proper formatting
+  const paragraphs = fullText
+    .split('\n\n')
+    .filter((p: string) => p.trim().length > 0)
+    .map((p: string) => {
+      // Escape HTML characters
+      const escaped = p
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+      // Handle single line breaks within paragraphs
+      const withBreaks = escaped.replace(/\n/g, '<br>');
+
+      // Detect if it looks like a heading
+      const trimmed = p.trim();
+      const isHeading = trimmed.length < 100 && trimmed.length > 0 &&
+                        (trimmed === trimmed.toUpperCase() || /^[0-9]+\./.test(trimmed));
+
+      if (isHeading) {
+        return `    <h2>${withBreaks}</h2>`;
+      } else {
+        return `    <p>${withBreaks}</p>`;
+      }
+    })
+    .join('\n');
+
+  const html = `<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Converted from PDF</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-    .page { page-break-after: always; margin-bottom: 40px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      line-height: 1.8;
+      color: #333;
+      background: #fff;
+    }
+    h1 {
+      color: #1a1a1a;
+      border-bottom: 3px solid #333;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+    h2 {
+      color: #2c3e50;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+    p {
+      margin-bottom: 15px;
+      text-align: justify;
+    }
+    .metadata {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 30px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    .page-break {
+      border-top: 2px dashed #ccc;
+      margin: 40px 0;
+      padding-top: 20px;
+    }
+    @media print {
+      body { max-width: 100%; }
+      .page-break { page-break-before: always; }
+    }
   </style>
 </head>
 <body>
-  <h1>PDF Document (${pageCount} pages)</h1>
-  <p>This PDF has been converted to HTML. Full text extraction requires additional libraries.</p>
-`;
-
-  for (let i = 0; i < pageCount; i++) {
-    html += `  <div class="page">
-    <h2>Page ${i + 1}</h2>
-    <p>Content from page ${i + 1}</p>
-  </div>\n`;
-  }
-
-  html += `</body>
+  <h1>PDF 문서 변환</h1>
+  <div class="metadata">
+    <strong>총 페이지:</strong> ${pageCount} |
+    <strong>생성일:</strong> ${new Date().toLocaleDateString('ko-KR')}
+  </div>
+${paragraphs}
+</body>
 </html>`;
 
-  onProgress?.(80);
+  onProgress?.(90);
   await fs.writeFile(outputPath, html, 'utf-8');
 }
 
-async function pdfToMarkdown(inputPath: string, outputPath: string, onProgress?: (progress: number) => void): Promise<void> {
-  onProgress?.(30);
+// Helper function to extract text using OCR
+async function extractTextWithOCR(pdfPath: string, pageCount: number, onProgress?: (progress: number) => void): Promise<string> {
+  const worker = await createWorker('kor+eng'); // Korean + English
+  let allText = '';
 
-  const pdfBytes = await fs.readFile(inputPath);
-  const pdfDoc = await PDFDocument.load(pdfBytes);
-  const pageCount = pdfDoc.getPageCount();
+  try {
+    // Convert PDF pages to images
+    const pdfImgModule = await getPdfImgConvert();
+    const images = await pdfImgModule.convert(pdfPath, { width: 2000, height: 2000 });
 
-  onProgress?.(50);
+    for (let i = 0; i < Math.min(images.length, pageCount); i++) {
+      const progress = 30 + (i / pageCount) * 40;
+      onProgress?.(progress);
 
-  let markdown = `# PDF Document\n\n`;
-  markdown += `Total pages: ${pageCount}\n\n`;
-
-  for (let i = 0; i < pageCount; i++) {
-    markdown += `## Page ${i + 1}\n\n`;
-    markdown += `Content from page ${i + 1}\n\n`;
-    markdown += `---\n\n`;
+      // Perform OCR on each page image
+      const { data } = await worker.recognize(Buffer.from(images[i] as Uint8Array));
+      allText += `\n\n--- Page ${i + 1} ---\n\n${data.text}`;
+    }
+  } finally {
+    await worker.terminate();
   }
 
-  onProgress?.(80);
+  return allText;
+}
+
+async function pdfToMarkdown(inputPath: string, outputPath: string, onProgress?: (progress: number) => void): Promise<void> {
+  onProgress?.(10);
+
+  const pdfBuffer = await fs.readFile(inputPath);
+
+  onProgress?.(20);
+
+  // Extract text content using pdf-parse
+  const pdfParseModule = await getPdfParse();
+  const pdfData = await pdfParseModule(pdfBuffer);
+  let fullText = pdfData.text.trim();
+  const pageCount = pdfData.numpages;
+
+  onProgress?.(30);
+
+  // If text extraction yields little to no content, use OCR
+  if (fullText.length < 100) {
+    console.log('Text extraction yielded minimal content. Using OCR...');
+    fullText = await extractTextWithOCR(inputPath, pageCount, onProgress);
+  }
+
+  onProgress?.(70);
+
+  // Convert text to Markdown with structure detection
+  const lines = fullText.split('\n');
+  let markdown = `# PDF 문서\n\n`;
+  markdown += `> **페이지 수:** ${pageCount}\n`;
+  markdown += `> **변환 일시:** ${new Date().toLocaleString('ko-KR')}\n\n`;
+  markdown += `---\n\n`;
+
+  let prevLineEmpty = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // Skip multiple consecutive empty lines
+    if (trimmed.length === 0) {
+      if (!prevLineEmpty) {
+        markdown += '\n';
+        prevLineEmpty = true;
+      }
+      continue;
+    }
+
+    prevLineEmpty = false;
+
+    // Detect headings (short uppercase lines or numbered sections)
+    if (trimmed.length < 100 && trimmed === trimmed.toUpperCase() && /[가-힣A-Z]/.test(trimmed)) {
+      markdown += `## ${trimmed}\n\n`;
+    }
+    // Detect numbered headings
+    else if (/^[0-9]+\./.test(trimmed) && trimmed.length < 80) {
+      markdown += `### ${trimmed}\n\n`;
+    }
+    // Detect bullet points
+    else if (/^[•●○◦▪▫-]\s/.test(trimmed)) {
+      markdown += `- ${trimmed.substring(2)}\n`;
+    }
+    // Page markers
+    else if (/^---\s*Page\s+\d+\s*---$/.test(trimmed)) {
+      markdown += `\n---\n\n${trimmed}\n\n`;
+    }
+    // Regular paragraph
+    else {
+      markdown += `${line}\n`;
+    }
+  }
+
+  // Clean up excessive newlines
+  markdown = markdown.replace(/\n{4,}/g, '\n\n\n');
+
+  onProgress?.(90);
   await fs.writeFile(outputPath, markdown, 'utf-8');
 }
 

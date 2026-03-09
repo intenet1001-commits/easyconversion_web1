@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
         const formData = await request.formData();
         const filesDataStr = formData.get('filesData') as string;
         const sessionId = formData.get('sessionId') as string;
+        const password = formData.get('password') as string | null;
 
         if (!filesDataStr) {
           controller.enqueue(encoder.encode(encodeSSE({
@@ -112,6 +113,23 @@ export async function POST(request: NextRequest) {
             throw new Error('.zip 파일이 필요합니다. 분할 압축의 모든 파일(.z01, .z02, ... 및 .zip)을 함께 업로드해주세요.');
           }
 
+          // 7z가 분할 파일을 찾을 수 있도록 임시 디렉토리에 원래 이름으로 복사
+          const tempDir = path.join(outputDir, '_temp_split');
+          fs.mkdirSync(tempDir, { recursive: true });
+
+          controller.enqueue(encoder.encode(encodeSSE({
+            type: 'progress',
+            progress: 15,
+            message: '분할 파일 준비 중...'
+          })));
+
+          // 모든 분할 파일을 원래 이름으로 복사
+          for (const file of filesData) {
+            const destPath = path.join(tempDir, file.originalName);
+            fs.copyFileSync(file.savedPath, destPath);
+            console.log(`[7z] Copied: ${file.savedPath} -> ${destPath}`);
+          }
+
           // 추출 디렉토리 생성
           const baseName = path.basename(mainZipFile.originalName, '.zip');
           extractDir = path.join(outputDir, baseName + '_extracted');
@@ -123,10 +141,13 @@ export async function POST(request: NextRequest) {
             message: '7z로 압축 해제 중...'
           })));
 
-          // 7z 명령어로 압축 해제 (.zip 파일 경로 사용, 7z가 자동으로 .z01 등을 찾음)
+          // 7z 명령어로 압축 해제 (임시 디렉토리의 .zip 파일 사용)
+          const tempZipPath = path.join(tempDir, mainZipFile.originalName);
           try {
+            // 비밀번호 옵션 추가 (있는 경우)
+            const passwordOption = password ? `-p"${password}"` : '';
             const { stdout, stderr } = await execAsync(
-              `7z x "${mainZipFile.savedPath}" -o"${extractDir}" -y`,
+              `7z x "${tempZipPath}" ${passwordOption} -o"${extractDir}" -y`,
               { maxBuffer: 50 * 1024 * 1024 }
             );
             console.log('7z stdout:', stdout);
@@ -136,7 +157,18 @@ export async function POST(request: NextRequest) {
             if (error.message.includes('not found') || error.message.includes('ENOENT')) {
               throw new Error('7z가 설치되어 있지 않습니다. WinZip 분할 압축 파일을 해제하려면 p7zip을 설치해주세요.');
             }
+            // 비밀번호 오류 처리
+            if (error.message.includes('Wrong password') || error.stderr?.includes('Wrong password')) {
+              throw new Error('비밀번호가 올바르지 않습니다. 정확한 비밀번호를 입력해주세요.');
+            }
             throw new Error(`압축 해제 실패: ${error.message}`);
+          }
+
+          // 임시 디렉토리 정리
+          try {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+          } catch (e) {
+            console.log('[7z] Failed to clean temp dir:', e);
           }
 
           controller.enqueue(encoder.encode(encodeSSE({
@@ -229,8 +261,52 @@ export async function POST(request: NextRequest) {
           extractDir = path.join(outputDir, extractBaseName + '_extracted');
           fs.mkdirSync(extractDir, { recursive: true });
 
-          // adm-zip으로 압축 해제
-          await extractWithAdmZip(zipFilePath, extractDir, extractedFiles, controller, encoder);
+          // 비밀번호가 있으면 7z 사용, 없으면 adm-zip 사용
+          if (password) {
+            controller.enqueue(encoder.encode(encodeSSE({
+              type: 'progress',
+              progress: 40,
+              message: '7z로 압축 해제 중 (비밀번호 보호됨)...'
+            })));
+
+            try {
+              const { stdout, stderr } = await execAsync(
+                `7z x "${zipFilePath}" -p"${password}" -o"${extractDir}" -y`,
+                { maxBuffer: 50 * 1024 * 1024 }
+              );
+              console.log('7z stdout:', stdout);
+              if (stderr) console.log('7z stderr:', stderr);
+            } catch (error: any) {
+              if (error.message.includes('not found') || error.message.includes('ENOENT')) {
+                throw new Error('7z가 설치되어 있지 않습니다.');
+              }
+              if (error.message.includes('Wrong password') || error.stderr?.includes('Wrong password')) {
+                throw new Error('비밀번호가 올바르지 않습니다. 정확한 비밀번호를 입력해주세요.');
+              }
+              throw new Error(`압축 해제 실패: ${error.message}`);
+            }
+
+            // 추출된 파일 목록 생성
+            const files = getAllFiles(extractDir);
+            for (const file of files) {
+              const relativePath = file.fullPath.replace(path.join(process.cwd(), 'public'), '');
+              extractedFiles.push({
+                name: file.name,
+                size: file.size,
+                url: relativePath,
+              });
+
+              controller.enqueue(encoder.encode(encodeSSE({
+                type: 'file-extracted',
+                fileName: file.name,
+                size: file.size,
+                url: relativePath,
+              })));
+            }
+          } else {
+            // adm-zip으로 압축 해제
+            await extractWithAdmZip(zipFilePath, extractDir, extractedFiles, controller, encoder);
+          }
         }
 
         // 합쳐진 임시 ZIP 파일 삭제

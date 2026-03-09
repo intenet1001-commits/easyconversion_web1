@@ -10,7 +10,9 @@ import { useConversionStore } from '@/store/useConversionStore';
 import { FileInfo } from '@/types';
 import { formatFileSize } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { X, Download, FolderOpen, FolderArchive, FileArchive } from 'lucide-react';
+import { X, Download, FolderOpen, FolderArchive, FileArchive, Lock } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadWithProgress } from '@/lib/upload-with-progress';
 
@@ -27,6 +29,7 @@ export function ExtractArchiveTab() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [extractedFiles, setExtractedFiles] = useState<ExtractedFile[]>([]);
   const [extractDir, setExtractDir] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleFilesAccepted = async (acceptedFiles: File[]) => {
     for (const file of acceptedFiles) {
@@ -132,6 +135,9 @@ export function ExtractArchiveTab() {
       const archiveFormData = new FormData();
       archiveFormData.append('filesData', JSON.stringify(filesForExtract));
       archiveFormData.append('sessionId', sessionId);
+      if (password) {
+        archiveFormData.append('password', password);
+      }
 
       const response = await fetch('/api/archive/extract', {
         method: 'POST',
@@ -329,6 +335,25 @@ export function ExtractArchiveTab() {
               </Button>
             </div>
           )}
+
+          {/* 비밀번호 입력 (선택 사항) */}
+          <div className="space-y-2">
+            <Label htmlFor="password" className="flex items-center gap-2">
+              <Lock className="h-4 w-4" />
+              압축 비밀번호 (선택 사항)
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="비밀번호가 있는 경우 입력하세요"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isProcessing}
+            />
+            <p className="text-xs text-muted-foreground">
+              비밀번호로 보호된 압축 파일인 경우에만 입력하세요.
+            </p>
+          </div>
 
           <Button
             onClick={handleExtractArchive}

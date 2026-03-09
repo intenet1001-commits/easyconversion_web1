@@ -56,6 +56,15 @@ export function DocumentConvertTab() {
       return;
     }
 
+    if (!sessionId) {
+      toast({
+        title: '세션 오류',
+        description: '페이지를 새로고침해주세요.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     // 변환 가능한 파일 확인
     const invalidFiles = files.filter((file) => {
       const ext = file.name.split('.').pop()?.toLowerCase() || '';
@@ -75,6 +84,7 @@ export function DocumentConvertTab() {
     setIsConverting(true);
     clearProgress();
     addLog(`변환 시작: ${files.length}개 파일 → ${outputFormat.toUpperCase()}`);
+    addLog(`세션 ID: ${sessionId}`);
 
     try {
       // 1. 파일 업로드
@@ -131,6 +141,7 @@ export function DocumentConvertTab() {
               });
               addLog(data.message);
             } else if (data.type === 'complete') {
+              const outputFileName = data.outputUrl.split('/').pop();
               updateProgress({
                 fileId: files[data.fileIndex].id,
                 fileName: data.fileName,
@@ -139,6 +150,11 @@ export function DocumentConvertTab() {
                 outputUrl: data.outputUrl,
               });
               addLog(data.message);
+              toast({
+                title: '✓ 파일 변환 완료',
+                description: outputFileName,
+                duration: 5000,
+              });
             } else if (data.type === 'error') {
               if (data.fileIndex !== undefined) {
                 updateProgress({
@@ -296,16 +312,36 @@ export function DocumentConvertTab() {
           <h3 className="font-semibold mb-4">변환 진행률</h3>
           <div className="space-y-4">
             {progressList.map((p) => (
-              <div key={p.fileId}>
-                <ProgressBar value={p.progress} label={p.fileName} />
+              <div key={p.fileId} className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium">{p.fileName}</span>
+                  {p.status === 'completed' && (
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  )}
+                  {p.status === 'error' && (
+                    <XCircle className="h-5 w-5 text-red-500" />
+                  )}
+                </div>
+                <ProgressBar value={p.progress} label="" />
                 {p.status === 'completed' && p.outputUrl && (
-                  <a href={p.outputUrl} download className="inline-flex items-center text-sm text-primary mt-2">
-                    <Download className="h-4 w-4 mr-1" />
-                    다운로드
-                  </a>
+                  <div className="mt-3 p-3 bg-green-50 dark:bg-green-950 rounded-md">
+                    <p className="text-sm text-green-700 dark:text-green-300 mb-2">
+                      ✓ 변환 완료: {p.outputUrl.split('/').pop()}
+                    </p>
+                    <Button asChild size="sm" variant="default" className="w-full">
+                      <a href={p.outputUrl} download>
+                        <Download className="h-4 w-4 mr-2" />
+                        파일 다운로드
+                      </a>
+                    </Button>
+                  </div>
                 )}
                 {p.status === 'error' && (
-                  <p className="text-sm text-red-500 mt-1">{p.message}</p>
+                  <div className="mt-3 p-3 bg-red-50 dark:bg-red-950 rounded-md">
+                    <p className="text-sm text-red-700 dark:text-red-300">
+                      ✗ {p.message}
+                    </p>
+                  </div>
                 )}
               </div>
             ))}

@@ -1,5 +1,5 @@
 // 파일 형식
-export type MediaFormat = 'mp4' | 'mp3' | 'mov' | 'wav';
+export type MediaFormat = 'mp4' | 'mp3' | 'mov' | 'wav' | 'gif';
 export type DocumentFormat = 'pdf' | 'docx' | 'pptx' | 'md' | 'html';
 export type YouTubeFormat = 'mp4' | 'mp3';
 

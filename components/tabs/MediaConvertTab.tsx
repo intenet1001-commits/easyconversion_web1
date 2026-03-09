@@ -320,6 +320,7 @@ export function MediaConvertTab() {
               <SelectContent>
                 <SelectItem value="mp4">MP4 (비디오)</SelectItem>
                 <SelectItem value="mov">MOV (비디오)</SelectItem>
+                <SelectItem value="gif">GIF (애니메이션)</SelectItem>
                 <SelectItem value="mp3">MP3 (오디오)</SelectItem>
                 <SelectItem value="wav">WAV (오디오)</SelectItem>
               </SelectContent>

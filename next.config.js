@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  serverExternalPackages: ['formidable', 'pdf-lib', 'pdf-parse'],
   // 프로덕션 빌드 시 별도 디렉토리 사용 (dev 서버와 충돌 방지)
   distDir: process.env.NODE_ENV === 'production' ? '.next-prod' : '.next',
   experimental: {

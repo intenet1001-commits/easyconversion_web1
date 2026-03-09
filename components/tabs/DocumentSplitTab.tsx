@@ -33,6 +33,7 @@ export function DocumentSplitTab() {
   const [ranges, setRanges] = useState<SplitRange[]>([
     { id: uuidv4(), start: 1, end: 1, name: '' }
   ]);
+  const [uploadedFileInfo, setUploadedFileInfo] = useState<{ savedName: string; originalName: string } | null>(null);
   const [fileNames, setFileNames] = useState<{ [key: number]: string }>({});
   const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
 
@@ -100,6 +101,10 @@ export function DocumentSplitTab() {
       const data = await response.json();
       if (data.success) {
         setPageCount(data.pageCount);
+        setUploadedFileInfo({
+          savedName: uploadData.files[0].savedName,
+          originalName: uploadData.files[0].originalName || file.name,
+        });
         addLog(`총 ${data.pageCount} 페이지`);
 
         // Initialize first range
@@ -132,7 +137,7 @@ export function DocumentSplitTab() {
   };
 
   const handleSplit = async () => {
-    if (files.length === 0) {
+    if (files.length === 0 || !uploadedFileInfo) {
       toast({ title: 'PDF 파일을 선택해주세요', variant: 'destructive' });
       return;
     }
@@ -157,7 +162,7 @@ export function DocumentSplitTab() {
 
     try {
       const formData = new FormData();
-      formData.append('fileData', JSON.stringify(files[0]));
+      formData.append('fileData', JSON.stringify(uploadedFileInfo));
       formData.append('sessionId', sessionId);
       formData.append('ranges', JSON.stringify(ranges.map(r => ({
         start: r.start,

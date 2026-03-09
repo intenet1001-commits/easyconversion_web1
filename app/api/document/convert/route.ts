@@ -15,6 +15,47 @@ export async function POST(request: NextRequest) {
   const sessionId = formData.get('sessionId') as string;
   const outputFormat = formData.get('outputFormat') as string;
 
+  // 필수 파라미터 검증
+  if (!sessionId) {
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: 'error', message: 'Session ID is required' })}\n\n`
+          )
+        );
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    });
+  }
+
+  if (!filesDataStr) {
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: 'error', message: 'Files data is required' })}\n\n`
+          )
+        );
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    });
+  }
+
   const filesData = JSON.parse(filesDataStr);
 
   const outputDir = path.join(process.cwd(), 'public', 'downloads', sessionId);

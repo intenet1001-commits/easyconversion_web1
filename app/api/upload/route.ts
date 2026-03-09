@@ -44,7 +44,10 @@ export async function POST(request: NextRequest) {
 
     // 세션 ID를 URL 쿼리에서 가져오기 (또는 헤더에서)
     const url = new URL(request.url);
+    console.log('[UPLOAD] Request URL:', request.url);
+    console.log('[UPLOAD] URL search params:', url.searchParams.toString());
     let sessionId = url.searchParams.get('sessionId') || request.headers.get('x-session-id');
+    console.log('[UPLOAD] Initial sessionId from URL/header:', sessionId);
 
     // Node.js request로 변환
     const nodeReq = await toNodeRequest(request);
