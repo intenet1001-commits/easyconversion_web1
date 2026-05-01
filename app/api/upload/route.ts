@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     // formidable로 파싱 (스트리밍)
     const [fields, files] = await new Promise<[Fields, Files]>(
       (resolve, reject) => {
-        form.parse(nodeReq, (err, fields, files) => {
+        form.parse(nodeReq, (err: any, fields: any, files: any) => {
           if (err) {
             console.error('[UPLOAD] Formidable parse error:', err);
             reject(err);

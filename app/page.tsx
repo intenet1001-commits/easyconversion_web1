@@ -249,13 +249,15 @@ export default function Home() {
       }
     } catch (error: any) {
       setIsBuilding(false);
+      const isNavAway = error?.name === 'AbortError' || !error?.message || error?.message?.includes('network') || error?.message?.includes('fetch');
+      if (isNavAway) {
+        setBuildStage('빌드 백그라운드 진행 중...');
+        toast({ title: '빌드 백그라운드 진행 중', description: '페이지를 이동해도 빌드는 계속됩니다. 완료 시 알림이 옵니다.' });
+        return;
+      }
       setBuildStage('빌드 실패');
       addLog(`❌ 에러: ${error.message}`);
-      toast({
-        title: 'DMG 빌드 실패',
-        description: error.message || '빌드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      });
+      toast({ title: 'DMG 빌드 실패', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -356,13 +358,15 @@ export default function Home() {
       }
     } catch (error: any) {
       setIsBuilding(false);
+      const isNavAway = error?.name === 'AbortError' || !error?.message || error?.message?.includes('network') || error?.message?.includes('fetch');
+      if (isNavAway) {
+        setBuildStage('빌드 백그라운드 진행 중...');
+        toast({ title: '빌드 백그라운드 진행 중', description: '페이지를 이동해도 빌드는 계속됩니다. 완료 시 알림이 옵니다.' });
+        return;
+      }
       setBuildStage('빌드 실패');
       addLog(`❌ 에러: ${error.message}`);
-      toast({
-        title: '빌드 실패',
-        description: error.message || '빌드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      });
+      toast({ title: '앱 빌드 실패', description: error.message, variant: 'destructive' });
     }
   };
 
