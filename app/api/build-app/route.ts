@@ -19,12 +19,11 @@ export async function POST() {
 
         sendEvent({ type: 'progress', message: '🔄 빌드 프로세스 시작...' });
 
-        // 1. 실행 중인 프로세스 종료
+        // 1. 실행 중인 앱 프로세스 종료 (node 서버 제외)
         sendEvent({ type: 'progress', message: '⏹️  실행 중인 프로세스 종료 중...' });
         try {
-          await execAsync('killall -9 EasyConversion 2>/dev/null || true');
-          await execAsync('killall -9 node 2>/dev/null || true');
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await execAsync('pkill -f "EasyConversion" 2>/dev/null || true');
+          await execAsync('pkill -9 -f "electron.*easyconversion" 2>/dev/null || true');
           sendEvent({ type: 'progress', message: '✅ 프로세스 종료 완료' });
         } catch (error) {
           sendEvent({ type: 'progress', message: '⚠️  프로세스 종료 중 에러 (무시)' });
