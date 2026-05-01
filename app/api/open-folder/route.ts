@@ -36,8 +36,12 @@ export async function POST(request: NextRequest) {
         command = `xdg-open "${targetPath}"`;
       }
     } else if (openProjectDownloads) {
-      // 프로젝트 다운로드 폴더 열기
+      // 프로젝트 다운로드 폴더 열기 (없으면 생성)
       targetPath = path.join(process.cwd(), 'public', 'downloads');
+      if (!existsSync(targetPath)) {
+        const { mkdirSync } = await import('fs');
+        mkdirSync(targetPath, { recursive: true });
+      }
 
       if (platform === 'darwin') {
         command = `open "${targetPath}"`;
