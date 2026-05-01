@@ -36,12 +36,7 @@ fi
 echo "✅ Next.js 빌드 완료"
 echo ""
 
-# 4. .next 디렉토리 교체
-echo "📦 [4/6] 빌드 파일 준비 중..."
-rm -rf .next
-cp -R .next-build .next
-echo "✅ 빌드 파일 준비 완료"
-echo ""
+# 4. (next.config.js가 NODE_ENV=production 시 .next-build를 distDir로 사용 — 복사 불필요)
 
 # 5. Electron 앱 빌드
 echo "🚀 [5/6] Electron 앱 빌드 시작..."
