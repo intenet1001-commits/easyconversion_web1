@@ -35,7 +35,10 @@ interface ConversionStore {
 export const useConversionStore = create<ConversionStore>((set, get) => ({
   files: [],
   addFile: (file) => {
-    set((state) => ({ files: [...state.files, file] }));
+    set((state) => {
+      if (state.files.some(f => f.id === file.id)) return state;
+      return { files: [...state.files, file] };
+    });
     get().saveCurrentSession();
   },
   removeFile: (fileId) => {
