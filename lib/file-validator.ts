@@ -5,6 +5,11 @@ export async function validateFile(
   file: File,
   allowedFormats: string[]
 ): Promise<{ valid: boolean; error?: string }> {
+  // 빈 파일 확인
+  if (file.size === 0) {
+    return { valid: false, error: '빈 파일은 업로드할 수 없습니다.' };
+  }
+
   // 크기 확인
   const maxSize = parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE || '524288000');
   if (file.size > maxSize) {
