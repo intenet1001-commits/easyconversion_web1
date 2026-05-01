@@ -240,12 +240,50 @@ export async function POST(request: NextRequest) {
           })));
 
           // 압축 해제할 폴더 생성
-          const extractBaseName = path.basename(zipFilePath, '.zip').replace(/^_combined_/, '');
+          const combinedExt = path.extname(baseFileName).toLowerCase();
+          const extractBaseName = path.parse(baseFileName).name;
           extractDir = path.join(outputDir, extractBaseName + '_extracted');
           fs.mkdirSync(extractDir, { recursive: true });
 
-          // adm-zip으로 압축 해제
-          await extractWithAdmZip(zipFilePath, extractDir, extractedFiles, controller, encoder);
+          if (combinedExt === '.7z') {
+            // 7z CLI로 .7z 분할 압축 해제
+            controller.enqueue(encoder.encode(encodeSSE({
+              type: 'progress',
+              progress: 40,
+              message: '7z로 압축 해제 중...'
+            })));
+            try {
+              const passwordOption = password ? `-p"${password}"` : '';
+              const { stdout, stderr } = await execAsync(
+                `7z x "${zipFilePath}" ${passwordOption} -o"${extractDir}" -y`,
+                { maxBuffer: 50 * 1024 * 1024 }
+              );
+              console.log('7z stdout:', stdout);
+              if (stderr) console.log('7z stderr:', stderr);
+            } catch (error: any) {
+              if (error.message.includes('not found') || error.message.includes('ENOENT')) {
+                throw new Error('7z가 설치되어 있지 않습니다. brew install p7zip 으로 설치해주세요.');
+              }
+              if (error.message.includes('Wrong password') || error.stderr?.includes('Wrong password')) {
+                throw new Error('비밀번호가 올바르지 않습니다. 정확한 비밀번호를 입력해주세요.');
+              }
+              throw new Error(`압축 해제 실패: ${error.message}`);
+            }
+            const files = getAllFiles(extractDir);
+            for (const file of files) {
+              const relativePath = file.fullPath.replace(path.join(process.cwd(), 'public'), '');
+              extractedFiles.push({ name: file.name, size: file.size, url: relativePath });
+              controller.enqueue(encoder.encode(encodeSSE({
+                type: 'file-extracted',
+                fileName: file.name,
+                size: file.size,
+                url: relativePath,
+              })));
+            }
+          } else {
+            // adm-zip으로 .zip 분할 압축 해제
+            await extractWithAdmZip(zipFilePath, extractDir, extractedFiles, controller, encoder);
+          }
 
         } else {
           // 단일 ZIP 파일
@@ -257,7 +295,7 @@ export async function POST(request: NextRequest) {
           }
 
           // 압축 해제할 폴더 생성
-          const extractBaseName = path.basename(filesData[0].originalName, '.zip');
+          const extractBaseName = path.parse(filesData[0].originalName).name;
           extractDir = path.join(outputDir, extractBaseName + '_extracted');
           fs.mkdirSync(extractDir, { recursive: true });
 
@@ -304,8 +342,51 @@ export async function POST(request: NextRequest) {
               })));
             }
           } else {
-            // adm-zip으로 압축 해제
-            await extractWithAdmZip(zipFilePath, extractDir, extractedFiles, controller, encoder);
+            // 7z 우선 시도 (한글 파일명 및 특수 ZIP 호환), 미설치 시 adm-zip 폴백
+            controller.enqueue(encoder.encode(encodeSSE({
+              type: 'progress',
+              progress: 40,
+              message: '압축 해제 중...'
+            })));
+
+            let used7z = false;
+            try {
+              const { stdout, stderr } = await execAsync(
+                `7z x "${zipFilePath}" -o"${extractDir}" -y`,
+                { maxBuffer: 50 * 1024 * 1024, timeout: 120000 }
+              );
+              console.log('7z stdout:', stdout);
+              if (stderr) console.log('7z stderr:', stderr);
+              used7z = true;
+            } catch (sevenZipError: any) {
+              if (sevenZipError.message.includes('not found') || sevenZipError.message.includes('ENOENT') || sevenZipError.code === 'ENOENT') {
+                if (filesData[0].originalName.toLowerCase().endsWith('.7z')) {
+                  throw new Error('.7z 파일을 해제하려면 7z(p7zip)가 필요합니다. brew install p7zip 으로 설치해주세요.');
+                }
+                console.log('[extract] 7z not found, falling back to adm-zip');
+              } else if (sevenZipError.killed) {
+                throw new Error('압축 해제 시간 초과 (2분). 파일이 너무 크거나 손상되었을 수 있습니다.');
+              } else {
+                throw new Error(`압축 해제 실패: ${sevenZipError.message}`);
+              }
+            }
+
+            if (used7z) {
+              const files = getAllFiles(extractDir);
+              for (const file of files) {
+                const relativePath = file.fullPath.replace(path.join(process.cwd(), 'public'), '');
+                extractedFiles.push({ name: file.name, size: file.size, url: relativePath });
+                controller.enqueue(encoder.encode(encodeSSE({
+                  type: 'file-extracted',
+                  fileName: file.name,
+                  size: file.size,
+                  url: relativePath,
+                })));
+              }
+            } else {
+              // adm-zip 폴백
+              await extractWithAdmZip(zipFilePath, extractDir, extractedFiles, controller, encoder);
+            }
           }
         }
 

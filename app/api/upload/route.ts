@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { mkdir } from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import formidable from 'formidable';
+import { formidable, Fields, Files } from 'formidable';
 import { Readable } from 'stream';
 
 // 대용량 파일 업로드를 위한 설정
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     console.log('[UPLOAD] Parsing form data with formidable...');
 
     // formidable로 파싱 (스트리밍)
-    const [fields, files] = await new Promise<[formidable.Fields, formidable.Files]>(
+    const [fields, files] = await new Promise<[Fields, Files]>(
       (resolve, reject) => {
         form.parse(nodeReq, (err, fields, files) => {
           if (err) {

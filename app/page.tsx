@@ -526,13 +526,16 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // 초기 로드 시 용량 가져오기
-    fetchTotalStorage();
+    // 초기 로드 시 3초 후 용량 가져오기 (dev 서버 컴파일 순서 보장)
+    const initialTimer = setTimeout(fetchTotalStorage, 3000);
 
-    // 5초마다 용량 업데이트
-    const interval = setInterval(fetchTotalStorage, 5000);
+    // 30초마다 용량 업데이트
+    const interval = setInterval(fetchTotalStorage, 30000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -641,7 +644,7 @@ export default function Home() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-9">
+        <TabsList className="flex w-full overflow-x-auto">
           <TabsTrigger value="youtube">YouTube</TabsTrigger>
           <TabsTrigger value="media-convert">미디어 변환</TabsTrigger>
           <TabsTrigger value="media-split">비디오 분할</TabsTrigger>
@@ -649,7 +652,7 @@ export default function Home() {
           <TabsTrigger value="doc-convert">문서 변환</TabsTrigger>
           <TabsTrigger value="doc-merge">문서 병합</TabsTrigger>
           <TabsTrigger value="doc-split">문서 분할</TabsTrigger>
-          <TabsTrigger value="split-archive">분할 압축</TabsTrigger>
+          <TabsTrigger value="split-archive">압축</TabsTrigger>
           <TabsTrigger value="extract-archive">압축 풀기</TabsTrigger>
         </TabsList>
 

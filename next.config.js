@@ -1,20 +1,29 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: ['formidable', 'pdf-lib', 'pdf-parse'],
-  // 프로덕션 빌드 시 별도 디렉토리 사용 (dev 서버와 충돌 방지)
-  distDir: process.env.NODE_ENV === 'production' ? '.next-prod' : '.next',
+  serverExternalPackages: [
+    'formidable', 'pdf-lib', 'pdf-parse',
+    'archiver', 'archiver-utils',
+    'mammoth', 'jszip',
+    'docx', 'xlsx',
+    'html-pdf-node', 'puppeteer',
+    'tesseract.js', 'pdf-img-convert',
+  ],
+  transpilePackages: ['@radix-ui/react-compose-refs', '@radix-ui/react-collection', '@radix-ui/react-roving-focus', '@radix-ui/react-tabs'],
+  distDir: process.env.NODE_ENV === 'production' ? '.next-build' : '.next',
+  outputFileTracingRoot: require('path').join(__dirname),
   experimental: {
-    // 대용량 파일 업로드를 위한 body size 제한 (50GB)
     serverActions: {
       bodySizeLimit: '50gb',
     },
   },
   webpack: (config, { isServer }) => {
-    // Suppress Handlebars warnings for html-pdf-node
     config.ignoreWarnings = [
       { module: /node_modules\/handlebars\/lib\/index\.js/ },
     ];
+    if (isServer) {
+      config.externals = [...(Array.isArray(config.externals) ? config.externals : [config.externals].filter(Boolean)), '@opentelemetry/api'];
+    }
     return config;
   },
 }

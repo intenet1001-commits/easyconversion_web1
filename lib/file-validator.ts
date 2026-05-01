@@ -1,5 +1,5 @@
-export const MEDIA_FORMATS = ['mp4', 'mp3', 'mov', 'wav', 'avi', 'mkv', 'm4a'];
-export const DOCUMENT_FORMATS = ['pdf', 'docx', 'pptx', 'md', 'html'];
+export const MEDIA_FORMATS = ['mp4', 'mp3', 'mov', 'wav', 'avi', 'mkv', 'm4a', 'ogg'];
+export const DOCUMENT_FORMATS = ['pdf', 'docx', 'md', 'html'];
 
 export async function validateFile(
   file: File,

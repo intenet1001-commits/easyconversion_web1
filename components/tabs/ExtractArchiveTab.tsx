@@ -33,15 +33,15 @@ export function ExtractArchiveTab() {
 
   const handleFilesAccepted = async (acceptedFiles: File[]) => {
     for (const file of acceptedFiles) {
-      // ZIP 파일 또는 분할 압축 파일인지 확인
-      const isZipFile = file.name.toLowerCase().endsWith('.zip');
-      // .zip.001, .zip.002 형식 또는 .z01, .z02 형식 지원
+      // ZIP/7z 파일 또는 분할 압축 파일인지 확인
+      const isZipFile = /\.(zip|7z)$/i.test(file.name);
+      // .zip.001, .zip.002, .7z.001 형식 또는 .z01, .z02 형식 지원
       const isSplitFile = /\.(zip|7z)\.\d{3}$/i.test(file.name) || /\.z\d{2}$/i.test(file.name);
 
       if (!isZipFile && !isSplitFile) {
         toast({
           title: '지원하지 않는 파일 형식',
-          description: 'ZIP 파일 또는 분할 압축 파일(.zip.001, .z01 등)만 지원합니다.',
+          description: 'ZIP, 7z 파일 또는 분할 압축 파일(.zip.001, .7z.001, .z01 등)만 지원합니다.',
           variant: 'destructive',
         });
         continue;
@@ -76,7 +76,6 @@ export function ExtractArchiveTab() {
     setExtractDir('');
 
     addLog(`압축 해제 시작: ${files.length}개 파일`);
-    console.log('[ExtractArchive] sessionId:', sessionId);
 
     try {
       // 1. 파일 업로드
@@ -91,7 +90,6 @@ export function ExtractArchiveTab() {
       setUploadProgress(0);
 
       const uploadUrl = `/api/upload?sessionId=${encodeURIComponent(sessionId)}`;
-      console.log('[ExtractArchive] Upload URL:', uploadUrl);
       addLog(`  세션 ID: ${sessionId}`);
 
       const uploadRes = await uploadWithProgress({
@@ -106,7 +104,6 @@ export function ExtractArchiveTab() {
       });
 
       const uploadText = await uploadRes.text();
-      console.log('[ExtractArchive] Upload response:', uploadText);
 
       let uploadData;
       try {
@@ -298,7 +295,7 @@ export function ExtractArchiveTab() {
           />
 
           <p className="text-sm text-muted-foreground">
-            ZIP 파일 또는 분할 압축 파일(.zip.001, .zip.002 등)을 업로드하세요.
+            ZIP, 7z 파일 또는 분할 압축 파일(.zip.001, .7z.001, .z01 등)을 업로드하세요.
             <br />
             분할 파일의 경우 모든 파트를 함께 업로드해야 합니다.
           </p>

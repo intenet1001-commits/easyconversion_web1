@@ -46,7 +46,8 @@ function SortableFileItem({ file, index, onRemove }: SortableFileItemProps) {
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: file.id });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } = useSortable({ id: file.id } as any);
 
   const style = {
     transform: CSS.Transform.toString(transform),

@@ -3,9 +3,6 @@ import path from 'path';
 import { readdir, stat } from 'fs/promises';
 import { existsSync } from 'fs';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 interface FileInfo {
   name: string;
   path: string;

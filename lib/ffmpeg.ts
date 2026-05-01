@@ -68,6 +68,11 @@ export async function convertMedia({
         command
           .audioCodec('pcm_s16le')
           .noVideo();
+      } else if (outputFormat === 'ogg') {
+        command
+          .audioCodec('libvorbis')
+          .audioBitrate('192k')
+          .noVideo();
       }
 
       // 멈춤 감지 타이머 (30초 동안 진행 없으면 에러)
