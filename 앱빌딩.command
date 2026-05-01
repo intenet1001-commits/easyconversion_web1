@@ -10,11 +10,10 @@ echo ""
 
 # 1. 실행 중인 프로세스 종료
 echo "🔄 [1/6] 실행 중인 프로세스 종료 중..."
-killall -9 node 2>/dev/null
-killall -9 EasyConversion 2>/dev/null
-killall -9 electron 2>/dev/null
-killall -9 electron-builder 2>/dev/null
-sleep 2
+lsof -ti:9005 | xargs kill -9 2>/dev/null
+pkill -9 -f "EasyConversion" 2>/dev/null
+pkill -9 -f "electron.*easyconversion" 2>/dev/null
+sleep 1
 echo "✅ 프로세스 종료 완료"
 echo ""
 
@@ -40,7 +39,7 @@ echo ""
 # 4. .next 디렉토리 교체
 echo "📦 [4/6] 빌드 파일 준비 중..."
 rm -rf .next
-cp -R .next-prod .next
+cp -R .next-build .next
 echo "✅ 빌드 파일 준비 완료"
 echo ""
 

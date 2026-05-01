@@ -16,12 +16,11 @@ if lsof -Pi :9005 -sTCP:LISTEN -t >/dev/null ; then
     sleep 2
 fi
 
-echo "🧹 캐시를 정리합니다..."
-rm -rf .next
-echo ""
-
 echo "🚀 Next.js 개발 서버를 시작합니다..."
 echo ""
+
+# 브라우저 자동 오픈 (3초 후 서버 준비되면)
+sleep 5 && open http://localhost:9005 &
 
 # npm run dev 실행
 npm run dev
