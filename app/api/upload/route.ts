@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
       keepExtensions: true,
       maxFileSize: 53687091200, // 50GB
       allowEmptyFiles: true,
+      minFileSize: 0,
       multiples: true,
     });
 
