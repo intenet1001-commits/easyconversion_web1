@@ -26,6 +26,8 @@ export default function Home() {
   const { activeTab, setActiveTab, sessionId, setSessionId, addFile } = useConversionStore();
   const [isProjectFilesOpen, setIsProjectFilesOpen] = useState(false);
   const [isBuilding, setIsBuilding] = useState(false);
+  const [buildProgress, setBuildProgress] = useState(0);
+  const [buildStage, setBuildStage] = useState('');
   const [totalStorage, setTotalStorage] = useState(0);
   const [canRestoreSession, setCanRestoreSession] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
@@ -154,6 +156,9 @@ export default function Home() {
 
     try {
       clearLogs();
+      setIsBuilding(true);
+      setBuildProgress(0);
+      setBuildStage('DMG 빌드 준비 중...');
       addLog('DMG 빌드를 시작합니다...');
 
       toast({
@@ -199,11 +204,17 @@ export default function Home() {
                 const data = JSON.parse(line.slice(6));
 
                 if (data.type === 'progress') {
+                  if (data.percent !== undefined) {
+                    setBuildProgress(data.percent);
+                    setBuildStage(data.message);
+                  }
                   addLog(data.message);
                 } else if (data.type === 'complete') {
+                  setBuildProgress(100);
+                  setBuildStage('빌드 완료!');
+                  setIsBuilding(false);
                   addLog(data.message);
-                  addLog('');
-                  addLog('🎉🎉🎉 빌드가 완료되었습니다! 🎉🎉🎉');
+                  addLog('🎉 빌드가 완료되었습니다!');
                   addLog('📁 DMG 파일 위치: dist 폴더');
                   addLog('💻 앱 설치 위치: Applications 폴더');
 
@@ -213,18 +224,15 @@ export default function Home() {
                     duration: 10000,
                   });
 
-                  // 브라우저 알림 표시
                   if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification('🎉 DMG 빌드 완료!', {
                       body: 'EasyConversion 앱 빌드가 성공적으로 완료되었습니다.',
                       icon: '/favicon.ico',
                     });
                   }
-
-                  // 소리 재생 (시스템 알림음)
-                  const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjGH0fPTgjMGHm7A7+OZUQ8PVKzn77BdGgo+ltTuymomBSd+zPLaizsIGGS56eqeUBANUKXi8LRiHAU5j9Xxynw=');
-                  audio.play().catch(() => {});
                 } else if (data.type === 'error') {
+                  setIsBuilding(false);
+                  setBuildStage('빌드 실패');
                   addLog(`❌ 에러: ${data.error}`);
                   toast({
                     title: '빌드 실패',
@@ -240,6 +248,8 @@ export default function Home() {
         }
       }
     } catch (error: any) {
+      setIsBuilding(false);
+      setBuildStage('빌드 실패');
       addLog(`❌ 에러: ${error.message}`);
       toast({
         title: 'DMG 빌드 실패',
@@ -254,6 +264,9 @@ export default function Home() {
 
     try {
       clearLogs();
+      setIsBuilding(true);
+      setBuildProgress(0);
+      setBuildStage('앱 빌드 준비 중...');
       addLog('앱 빌드를 시작합니다...');
 
       toast({
@@ -299,11 +312,17 @@ export default function Home() {
                 const data = JSON.parse(line.slice(6));
 
                 if (data.type === 'progress') {
+                  if (data.percent !== undefined) {
+                    setBuildProgress(data.percent);
+                    setBuildStage(data.message);
+                  }
                   addLog(data.message);
                 } else if (data.type === 'complete') {
+                  setBuildProgress(100);
+                  setBuildStage('빌드 완료!');
+                  setIsBuilding(false);
                   addLog(data.message);
-                  addLog('');
-                  addLog('🎉🎉🎉 빌드가 완료되었습니다! 🎉🎉🎉');
+                  addLog('🎉 빌드가 완료되었습니다!');
                   addLog('💻 앱 설치 위치: Applications 폴더');
 
                   toast({
@@ -312,18 +331,15 @@ export default function Home() {
                     duration: 10000,
                   });
 
-                  // 브라우저 알림 표시
                   if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification('🎉 앱 빌드 완료!', {
                       body: 'EasyConversion 앱 빌드가 성공적으로 완료되었습니다.',
                       icon: '/favicon.ico',
                     });
                   }
-
-                  // 소리 재생 (시스템 알림음)
-                  const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjGH0fPTgjMGHm7A7+OZUQ8PVKzn77BdGgo+ltTuymomBSd+zPLaizsIGGS56eqeUBANUKXi8LRiHAU5j9Xxynw=');
-                  audio.play().catch(() => {});
                 } else if (data.type === 'error') {
+                  setIsBuilding(false);
+                  setBuildStage('빌드 실패');
                   addLog(`❌ 에러: ${data.error}`);
                   toast({
                     title: '빌드 실패',
@@ -339,6 +355,8 @@ export default function Home() {
         }
       }
     } catch (error: any) {
+      setIsBuilding(false);
+      setBuildStage('빌드 실패');
       addLog(`❌ 에러: ${error.message}`);
       toast({
         title: '빌드 실패',
@@ -581,16 +599,18 @@ export default function Home() {
                 variant="default"
                 size="sm"
                 onClick={handleBuildDMG}
+                disabled={isBuilding}
               >
-                <Package className="h-4 w-4 mr-2" />
+                <Package className={`h-4 w-4 mr-2 ${isBuilding ? 'animate-spin' : ''}`} />
                 DMG 빌드 및 설치
               </Button>
               <Button
                 variant="default"
                 size="sm"
                 onClick={handleBuildApp}
+                disabled={isBuilding}
               >
-                <Package className="h-4 w-4 mr-2" />
+                <Package className={`h-4 w-4 mr-2 ${isBuilding ? 'animate-spin' : ''}`} />
                 앱 빌드 및 설치
               </Button>
               <Button
@@ -642,6 +662,21 @@ export default function Home() {
           </Button>
         </div>
       </div>
+
+      {!isElectron && isBuilding && (
+        <div className="mb-4 p-3 border rounded-lg bg-muted/30">
+          <div className="flex justify-between items-center mb-1.5">
+            <span className="text-sm text-muted-foreground">{buildStage}</span>
+            <span className="text-sm font-mono font-medium">{buildProgress}%</span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div
+              className="bg-primary h-2 rounded-full transition-all duration-500"
+              style={{ width: `${buildProgress}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="flex w-full overflow-x-auto">

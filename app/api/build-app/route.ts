@@ -30,7 +30,25 @@ export async function POST() {
         }
 
         // 2. 앱 빌드 (실시간 출력)
-        sendEvent({ type: 'progress', message: '🔨 앱 빌드 시작...' });
+        sendEvent({ type: 'progress', percent: 5, message: '🔨 Next.js 프로덕션 빌드 중... (1/2)' });
+
+        let percent = 5;
+        const nextjsStages: [RegExp, number, string][] = [
+          [/Creating an optimized production build/, 10, 'Next.js 최적화 빌드 준비 중...'],
+          [/Compiling|Compiled/, 25, 'Next.js 컴파일 중...'],
+          [/Collecting page data/, 45, '페이지 데이터 수집 중...'],
+          [/Generating static pages/, 60, '정적 페이지 생성 중...'],
+          [/Collecting build traces/, 75, '빌드 트레이스 수집 중...'],
+          [/Finalizing|✓ Compiled|Route \(app\)/, 85, 'Next.js 빌드 완료, 패키징 준비 중...'],
+          [/packaging|Packaging/, 88, '앱 패키징 중... (2/2)'],
+          [/building|Building/, 93, '앱 빌드 중...'],
+        ];
+
+        const isNoisyLine = (line: string) =>
+          !line.trim() ||
+          /^\s*(at |•|›|info|warn:|ExperimentalWarning|DeprecationWarning|node_modules|\[.*\]\s*$)/.test(line) ||
+          line.includes('node_modules') ||
+          line.startsWith('  ') && line.includes('/');
 
         await new Promise<void>((resolve, reject) => {
           const buildProcess = spawn('npm', ['run', 'electron:build:mac:app'], {
@@ -39,31 +57,36 @@ export async function POST() {
           });
 
           buildProcess.stdout.on('data', (data) => {
-            const output = data.toString().trim();
-            if (output) {
-              // 모든 출력 표시 (더 상세한 진행 상황)
-              const lines = output.split('\n');
-              lines.forEach((line: string) => {
-                if (line.trim()) {
-                  sendEvent({ type: 'progress', message: `📦 ${line}` });
+            const lines = data.toString().split('\n');
+            for (const line of lines) {
+              if (isNoisyLine(line)) continue;
+              for (const [pattern, newPercent, label] of nextjsStages) {
+                if (pattern.test(line) && newPercent > percent) {
+                  percent = newPercent;
+                  sendEvent({ type: 'progress', percent, message: label });
+                  break;
                 }
-              });
+              }
             }
           });
 
           buildProcess.stderr.on('data', (data) => {
             const output = data.toString().trim();
-            if (output && !output.includes('warning') && !output.includes('deprecated')) {
-              sendEvent({ type: 'progress', message: `⚠️  ${output}` });
+            if (output &&
+              !output.includes('warning') &&
+              !output.includes('deprecated') &&
+              !output.includes('ExperimentalWarning') &&
+              !isNoisyLine(output)) {
+              sendEvent({ type: 'progress', percent, message: `⚠️ ${output.slice(0, 120)}` });
             }
           });
 
           buildProcess.on('close', (code) => {
             if (code === 0) {
-              sendEvent({ type: 'progress', message: '✅ 앱 빌드 완료' });
+              sendEvent({ type: 'progress', percent: 97, message: '✅ 앱 빌드 완료' });
               resolve();
             } else {
-              reject(new Error(`빌드 프로세스 종료 코드: ${code}`));
+              reject(new Error(`빌드 실패 (종료 코드: ${code})`));
             }
           });
 
@@ -73,13 +96,13 @@ export async function POST() {
         });
 
         // 3. Applications 폴더에 복사
-        sendEvent({ type: 'progress', message: '📁 Applications 폴더에 설치 중...' });
+        sendEvent({ type: 'progress', percent: 98, message: '📁 Applications 폴더에 설치 중...' });
         const sourcePath = `${process.cwd()}/dist/mac-arm64/EasyConversion.app`;
         const targetPath = '/Applications/EasyConversion.app';
 
         await execAsync(`rm -rf "${targetPath}"`);
         await execAsync(`cp -R "${sourcePath}" "${targetPath}"`);
-        sendEvent({ type: 'progress', message: '✅ Applications 폴더 설치 완료' });
+        sendEvent({ type: 'progress', percent: 99, message: '✅ Applications 폴더 설치 완료' });
 
         sendEvent({
           type: 'complete',
