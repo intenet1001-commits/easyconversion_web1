@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       uploadDir: tempUploadDir,
       keepExtensions: true,
       maxFileSize: 53687091200, // 50GB
-      allowEmptyFiles: false,
+      allowEmptyFiles: true,
       multiples: true,
     });
 
@@ -115,6 +115,7 @@ export async function POST(request: NextRequest) {
 
     for (const file of fileArray) {
       if (!file) continue;
+      if (!file.size || file.size === 0) continue; // 빈 파일 무시
 
       const fileId = uuidv4();
       const fileName = `${fileId}_${file.originalFilename || 'unknown'}`;
