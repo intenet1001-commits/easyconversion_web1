@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { mkdir } from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { formidable, Fields, Files } from 'formidable';
+import type { Fields, Files } from 'formidable';
+import { createRequire } from 'module';
 import { Readable } from 'stream';
+
+const _require = createRequire(import.meta.url);
+const { formidable } = _require('formidable');
 
 // 대용량 파일 업로드를 위한 설정
 export const runtime = 'nodejs';
