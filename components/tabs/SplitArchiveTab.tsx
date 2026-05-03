@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { X, Download, FolderOpen, Archive, Eye, EyeOff, Lock } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadWithProgress } from '@/lib/upload-with-progress';
+import { downloadFileFromUrl } from '@/lib/download';
 
 const SPLIT_SIZES = {
   '10MB': 10 * 1024 * 1024,
@@ -187,13 +188,7 @@ export function SplitArchiveTab() {
 
   const downloadAllParts = async () => {
     for (const result of splitResults) {
-      const link = document.createElement('a');
-      link.href = result.url;
-      link.download = result.fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await downloadFileFromUrl(result.url, result.fileName);
     }
     toast({ title: `${splitResults.length}개 파일 다운로드 시작` });
   };

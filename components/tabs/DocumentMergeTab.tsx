@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { X, Download, FolderOpen, GripVertical } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadWithProgress } from '@/lib/upload-with-progress';
+import { downloadFileFromUrl } from '@/lib/download';
 import {
   DndContext,
   closestCenter,
@@ -199,19 +200,11 @@ export function DocumentMergeTab() {
     }
   };
 
-  const downloadFile = () => {
+  const downloadFile = async () => {
     if (!outputUrl) return;
 
-    const link = document.createElement('a');
-    link.href = outputUrl;
-
-    if (fileName) {
-      link.download = `${fileName}.pdf`;
-    }
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const filename = fileName ? `${fileName}.pdf` : outputUrl.split('/').pop() || '';
+    await downloadFileFromUrl(outputUrl, filename);
 
     toast({ title: '다운로드 시작' });
     addLog('파일 다운로드 시작');

@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadWithProgress } from '@/lib/upload-with-progress';
+import { downloadFileFromUrl } from '@/lib/download';
 
 interface ExtractedFile {
   name: string;
@@ -214,20 +215,14 @@ export function ExtractArchiveTab() {
     }
   };
 
-  const downloadFile = (file: ExtractedFile) => {
-    const link = document.createElement('a');
-    link.href = file.url;
-    link.download = file.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const downloadFile = async (file: ExtractedFile) => {
+    await downloadFileFromUrl(file.url, file.name);
     addLog(`다운로드: ${file.name}`);
   };
 
   const downloadAllFiles = async () => {
     for (const file of extractedFiles) {
-      downloadFile(file);
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await downloadFile(file);
     }
 
     toast({ title: `${extractedFiles.length}개 파일 다운로드 시작` });

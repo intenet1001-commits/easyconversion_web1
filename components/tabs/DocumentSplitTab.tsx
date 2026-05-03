@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { X, Download, FolderOpen, Plus, Trash2, CheckSquare, Square } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadWithProgress } from '@/lib/upload-with-progress';
+import { downloadFileFromUrl } from '@/lib/download';
 
 interface SplitRange {
   id: string;
@@ -223,17 +224,8 @@ export function DocumentSplitTab() {
 
     for (const index of Array.from(selectedFiles)) {
       const url = outputUrls[index];
-      const link = document.createElement('a');
-      link.href = url;
-
-      if (fileNames[index]) {
-        link.download = `${fileNames[index]}.pdf`;
-      }
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const filename = fileNames[index] ? `${fileNames[index]}.pdf` : url.split('/').pop() || '';
+      await downloadFileFromUrl(url, filename);
     }
 
     toast({ title: `${selectedFiles.size}개 파일 다운로드 시작` });
@@ -242,17 +234,8 @@ export function DocumentSplitTab() {
 
   const downloadAll = async () => {
     for (const [index, url] of outputUrls.entries()) {
-      const link = document.createElement('a');
-      link.href = url;
-
-      if (fileNames[index]) {
-        link.download = `${fileNames[index]}.pdf`;
-      }
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const filename = fileNames[index] ? `${fileNames[index]}.pdf` : url.split('/').pop() || '';
+      await downloadFileFromUrl(url, filename);
     }
 
     toast({ title: `${outputUrls.length}개 파일 다운로드 시작` });

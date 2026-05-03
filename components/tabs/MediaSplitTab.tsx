@@ -19,6 +19,7 @@ import { X, Download, Plus, Trash2, List, FolderOpen, CheckSquare, Square } from
 import { v4 as uuidv4 } from 'uuid';
 import { Textarea } from '@/components/ui/textarea';
 import { uploadWithProgress } from '@/lib/upload-with-progress';
+import { downloadFileFromUrl } from '@/lib/download';
 
 type SplitMode = 'timepoints' | 'segments';
 
@@ -107,21 +108,9 @@ export function MediaSplitTab() {
     const indices = Array.from(selectedFiles);
     for (const index of indices) {
       const url = outputUrls[index];
-      const link = document.createElement('a');
-      link.href = url;
-
-      // 사용자 지정 파일명이 있으면 사용
-      if (fileNames[index]) {
-        const ext = url.substring(url.lastIndexOf('.'));
-        link.download = `${fileNames[index]}${ext}`;
-      } else {
-        link.download = '';
-      }
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      await new Promise(resolve => setTimeout(resolve, 300)); // 다운로드 간 딜레이
+      const ext = url.substring(url.lastIndexOf('.'));
+      const filename = fileNames[index] ? `${fileNames[index]}${ext}` : url.split('/').pop() || '';
+      await downloadFileFromUrl(url, filename);
     }
 
     toast({ title: `${selectedFiles.size}개 파일 다운로드 시작` });
@@ -131,21 +120,9 @@ export function MediaSplitTab() {
   const downloadAll = async () => {
     for (let i = 0; i < outputUrls.length; i++) {
       const url = outputUrls[i];
-      const link = document.createElement('a');
-      link.href = url;
-
-      // 사용자 지정 파일명이 있으면 사용
-      if (fileNames[i]) {
-        const ext = url.substring(url.lastIndexOf('.'));
-        link.download = `${fileNames[i]}${ext}`;
-      } else {
-        link.download = '';
-      }
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      await new Promise(resolve => setTimeout(resolve, 300)); // 다운로드 간 딜레이
+      const ext = url.substring(url.lastIndexOf('.'));
+      const filename = fileNames[i] ? `${fileNames[i]}${ext}` : url.split('/').pop() || '';
+      await downloadFileFromUrl(url, filename);
     }
 
     toast({ title: `${outputUrls.length}개 파일 다운로드 시작` });

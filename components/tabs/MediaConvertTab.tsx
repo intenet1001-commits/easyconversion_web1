@@ -16,6 +16,7 @@ import { X, Download, FolderOpen, CheckSquare, Square } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Input } from '@/components/ui/input';
 import { uploadWithProgress } from '@/lib/upload-with-progress';
+import { downloadFileFromUrl } from '@/lib/download';
 
 export function MediaConvertTab() {
   const { toast } = useToast();
@@ -59,20 +60,9 @@ export function MediaConvertTab() {
       const progress = progressList.find(p => p.fileId === fileId);
       if (!progress?.outputUrl) continue;
 
-      const link = document.createElement('a');
-      link.href = progress.outputUrl;
-
-      if (fileNames[fileId]) {
-        const ext = progress.outputUrl.substring(progress.outputUrl.lastIndexOf('.'));
-        link.download = `${fileNames[fileId]}${ext}`;
-      } else {
-        link.download = '';
-      }
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const ext = progress.outputUrl.substring(progress.outputUrl.lastIndexOf('.'));
+      const filename = fileNames[fileId] ? `${fileNames[fileId]}${ext}` : progress.outputUrl.split('/').pop() || '';
+      await downloadFileFromUrl(progress.outputUrl, filename);
     }
 
     toast({ title: `${selectedFiles.size}개 파일 다운로드 시작` });
@@ -83,20 +73,9 @@ export function MediaConvertTab() {
     const completedFiles = progressList.filter(p => p.status === 'completed' && p.outputUrl);
 
     for (const progress of completedFiles) {
-      const link = document.createElement('a');
-      link.href = progress.outputUrl!;
-
-      if (fileNames[progress.fileId]) {
-        const ext = progress.outputUrl!.substring(progress.outputUrl!.lastIndexOf('.'));
-        link.download = `${fileNames[progress.fileId]}${ext}`;
-      } else {
-        link.download = '';
-      }
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const ext = progress.outputUrl!.substring(progress.outputUrl!.lastIndexOf('.'));
+      const filename = fileNames[progress.fileId] ? `${fileNames[progress.fileId]}${ext}` : progress.outputUrl!.split('/').pop() || '';
+      await downloadFileFromUrl(progress.outputUrl!, filename);
     }
 
     toast({ title: `${completedFiles.length}개 파일 다운로드 시작` });
