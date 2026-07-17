@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef, useEffect } from 'react';
 import { useConversionStore } from '@/store/useConversionStore';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
@@ -10,6 +11,11 @@ import { useToast } from '@/hooks/use-toast';
 export function LogViewer() {
   const { logs, clearLogs } = useConversionStore();
   const { toast } = useToast();
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
 
   const copyAllLogs = async () => {
     if (logs.length === 0) {
@@ -61,6 +67,7 @@ export function LogViewer() {
                 {log}
               </p>
             ))}
+            <div ref={bottomRef} />
           </div>
         )}
       </ScrollArea>
