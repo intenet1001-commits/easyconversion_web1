@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Download, Trash2, CheckSquare, Square, FolderOpen, RefreshCw } from 'lucide-react';
 import { formatFileSize } from '@/lib/utils';
+import { downloadFileFromUrl } from '@/lib/download';
 
 interface FileInfo {
   name: string;
@@ -117,12 +118,8 @@ export function ProjectFilesDialog({ isOpen, onClose }: ProjectFilesDialogProps)
     }
 
     for (const filePath of Array.from(selectedFiles)) {
-      const link = document.createElement('a');
-      link.href = filePath;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const file = files.find(f => f.path === filePath);
+      await downloadFileFromUrl(filePath, file?.name || filePath.split('/').pop() || '');
     }
 
     toast({ title: `${selectedFiles.size}개 파일 다운로드 시작` });
@@ -193,14 +190,13 @@ export function ProjectFilesDialog({ isOpen, onClose }: ProjectFilesDialogProps)
                       {formatFileSize(file.size)} · {new Date(file.createdAt).toLocaleString('ko-KR')}
                     </p>
                   </div>
-                  <a
-                    href={file.path}
-                    download
+                  <button
+                    onClick={() => downloadFileFromUrl(file.path, file.name)}
                     className="inline-flex items-center text-sm text-primary hover:underline flex-shrink-0"
                   >
                     <Download className="h-4 w-4 mr-1" />
                     다운로드
-                  </a>
+                  </button>
                 </div>
               ))}
             </div>
