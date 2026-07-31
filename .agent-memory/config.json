@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "memoryId": "ce5c33df-9570-4491-814a-71d73f7e66ad",
+  "sourcePath": ".agent-memory/CORE.md",
+  "agent": "claude",
+  "autoBackup": true,
+  "lastPulledRevisionId": "de5708be-40c3-48e9-a684-10458133d2a8",
+  "lastSyncedHash": "d9e1f3c23980835d2287a648b4ce55df7964759a54caa3a13a195091ab7c40ad",
+  "lastUpdatedAt": null,
+  "lastBackedUpAt": "2026-07-31T09:45:34.860Z",
+  "lastRememberedActivityFingerprint": "ae37d2d376452045978026d7bf333735da818121c43881e273c0ce4b19396667",
+  "lastRememberedAt": "2026-07-31T09:45:34.650Z"
+}

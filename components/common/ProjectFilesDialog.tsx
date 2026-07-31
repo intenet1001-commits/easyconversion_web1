@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Download, Trash2, CheckSquare, Square, FolderOpen, RefreshCw } from 'lucide-react';
 import { formatFileSize } from '@/lib/utils';
+import { downloadFileFromUrl } from '@/lib/download';
 
 interface FileInfo {
   name: string;
@@ -116,16 +117,35 @@ export function ProjectFilesDialog({ isOpen, onClose }: ProjectFilesDialogProps)
       return;
     }
 
-    for (const filePath of Array.from(selectedFiles)) {
-      const link = document.createElement('a');
-      link.href = filePath;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      await new Promise(resolve => setTimeout(resolve, 300));
+    const targets = Array.from(selectedFiles);
+    let successCount = 0;
+    const failedNames: string[] = [];
+
+    for (const filePath of targets) {
+      const file = files.find(f => f.path === filePath);
+      const name = file?.name || filePath.split('/').pop() || '';
+      try {
+        // 파일 하나가 실패해도 나머지가 계속 진행되도록 개별 try/catch로 감싼다
+        // (예전엔 한 파일만 실패해도 반복문이 그대로 멈춰서 이후 파일들이 통째로 스킵됐음)
+        await downloadFileFromUrl(filePath, name);
+        successCount++;
+      } catch (error: any) {
+        failedNames.push(name);
+        console.error('[다운로드 실패]', name, error);
+      }
+      // 브라우저가 "여러 파일을 한꺼번에 다운로드하려고 합니다" 경고로 일부를 막지 않도록 살짝 텀을 둔다
+      await new Promise((resolve) => setTimeout(resolve, 400));
     }
 
-    toast({ title: `${selectedFiles.size}개 파일 다운로드 시작` });
+    if (failedNames.length === 0) {
+      toast({ title: `${successCount}개 파일 다운로드 완료` });
+    } else {
+      toast({
+        title: `${successCount}/${targets.length}개만 다운로드됨`,
+        description: `실패: ${failedNames.slice(0, 3).join(', ')}${failedNames.length > 3 ? ` 외 ${failedNames.length - 3}개` : ''}`,
+        variant: 'destructive',
+      });
+    }
   };
 
   const openProjectFolder = async () => {
@@ -193,14 +213,13 @@ export function ProjectFilesDialog({ isOpen, onClose }: ProjectFilesDialogProps)
                       {formatFileSize(file.size)} · {new Date(file.createdAt).toLocaleString('ko-KR')}
                     </p>
                   </div>
-                  <a
-                    href={file.path}
-                    download
+                  <button
+                    onClick={() => downloadFileFromUrl(file.path, file.name)}
                     className="inline-flex items-center text-sm text-primary hover:underline flex-shrink-0"
                   >
                     <Download className="h-4 w-4 mr-1" />
                     다운로드
-                  </a>
+                  </button>
                 </div>
               ))}
             </div>

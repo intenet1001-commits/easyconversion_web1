@@ -37,7 +37,10 @@ export async function GET(request: NextRequest) {
           if (fileStat.isFile()) {
             files.push({
               name: fileName,
-              path: `/downloads/${sessionId}/${fileName}`,
+              // 파일명에 URL 특수문자(#, ? 등)가 포함될 수 있어 인코딩해서 내려준다.
+              // (# 는 fetch/브라우저가 URL 프래그먼트로 해석해 요청 경로가 잘려나가
+              // "#"부터 나머지 파일명이 누락되고, 이 때문에 존재하는 파일도 404가 났었다.)
+              path: `/downloads/${encodeURIComponent(sessionId)}/${encodeURIComponent(fileName)}`,
               size: fileStat.size,
               sessionId,
               createdAt: fileStat.mtimeMs,

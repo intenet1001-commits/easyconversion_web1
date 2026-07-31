@@ -1,0 +1,162 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - img [ref=e6]
+        - generic [ref=e9]:
+          - generic [ref=e10]: EasyConversion Web
+          - generic [ref=e11]: 올인원 파일 변환 워크스페이스
+      - generic [ref=e12]:
+        - button "시스템" [ref=e14] [cursor=pointer]:
+          - img [ref=e15]
+          - generic [ref=e18]: 시스템
+          - img [ref=e19]
+        - button "새로고침" [ref=e21] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e24]: 새로고침
+    - generic [ref=e25]:
+      - complementary [ref=e26]:
+        - generic [ref=e27]:
+          - generic [ref=e28]: 다운로드
+          - button "YouTube 다운로드 동영상·오디오 추출" [ref=e29] [cursor=pointer]:
+            - img [ref=e31]
+            - generic [ref=e34]:
+              - generic [ref=e35]: YouTube 다운로드
+              - generic [ref=e36]: 동영상·오디오 추출
+        - generic [ref=e38]:
+          - generic [ref=e39]: 미디어
+          - button "미디어 변환 포맷 변경" [ref=e40] [cursor=pointer]:
+            - img [ref=e42]
+            - generic [ref=e44]:
+              - generic [ref=e45]: 미디어 변환
+              - generic [ref=e46]: 포맷 변경
+          - button "미디어 분할 구간으로 분리" [ref=e47] [cursor=pointer]:
+            - img [ref=e49]
+            - generic [ref=e51]:
+              - generic [ref=e52]: 미디어 분할
+              - generic [ref=e53]: 구간으로 분리
+          - button "미디어 병합 하나로 합치기" [ref=e54] [cursor=pointer]:
+            - img [ref=e56]
+            - generic [ref=e58]:
+              - generic [ref=e59]: 미디어 병합
+              - generic [ref=e60]: 하나로 합치기
+        - generic [ref=e61]:
+          - generic [ref=e62]: 문서
+          - button "문서 변환 PDF · DOCX · MD · HTML" [ref=e63] [cursor=pointer]:
+            - img [ref=e65]
+            - generic [ref=e67]:
+              - generic [ref=e68]: 문서 변환
+              - generic [ref=e69]: PDF · DOCX · MD · HTML
+          - button "문서 병합 PDF 합치기" [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e74]:
+              - generic [ref=e75]: 문서 병합
+              - generic [ref=e76]: PDF 합치기
+          - button "문서 분할 PDF 페이지 분리" [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e81]:
+              - generic [ref=e82]: 문서 분할
+              - generic [ref=e83]: PDF 페이지 분리
+        - generic [ref=e84]:
+          - generic [ref=e85]: 아카이브
+          - button "압축 ZIP · 7z · 분할" [ref=e86] [cursor=pointer]:
+            - img [ref=e88]
+            - generic [ref=e91]:
+              - generic [ref=e92]: 압축
+              - generic [ref=e93]: ZIP · 7z · 분할
+          - button "압축 풀기 분할 압축 지원" [ref=e94] [cursor=pointer]:
+            - img [ref=e96]
+            - generic [ref=e99]:
+              - generic [ref=e100]: 압축 풀기
+              - generic [ref=e101]: 분할 압축 지원
+      - main [ref=e102]:
+        - generic [ref=e103]:
+          - generic [ref=e104]: 도구
+          - img [ref=e105]
+          - generic [ref=e107]: YouTube 다운로드
+        - generic [ref=e108]:
+          - generic [ref=e109]:
+            - generic [ref=e110]:
+              - generic [ref=e111]:
+                - heading "YouTube 다운로드" [level=2] [ref=e112]
+                - generic [ref=e113]:
+                  - generic [ref=e114]:
+                    - text: YouTube URL
+                    - generic [ref=e115]:
+                      - textbox "YouTube URL" [ref=e116]:
+                        - /placeholder: https://youtube.com/watch?v=...
+                      - button "붙여넣기" [ref=e117] [cursor=pointer]
+                      - button [ref=e118] [cursor=pointer]:
+                        - img [ref=e119]
+                  - generic [ref=e121]:
+                    - text: 출력 형식
+                    - radiogroup [ref=e122]:
+                      - generic [ref=e123]:
+                        - radio "MP4 (비디오)" [checked] [ref=e124] [cursor=pointer]:
+                          - img [ref=e126]
+                        - radio [checked]
+                        - generic [ref=e128]: MP4 (비디오)
+                      - generic [ref=e129]:
+                        - radio "MP3 (오디오)" [ref=e130] [cursor=pointer]
+                        - radio
+                        - generic [ref=e131]: MP3 (오디오)
+                  - button "다운로드 시작" [disabled]
+              - generic [ref=e132]:
+                - generic [ref=e133]:
+                  - heading "로그" [level=3] [ref=e134]
+                  - generic [ref=e135]:
+                    - button "복사" [ref=e136] [cursor=pointer]:
+                      - img [ref=e137]
+                      - text: 복사
+                    - button "지우기" [ref=e140] [cursor=pointer]:
+                      - img [ref=e141]
+                      - text: 지우기
+                - paragraph [ref=e147]: 로그가 없습니다.
+            - generic [ref=e148]:
+              - generic [ref=e149]:
+                - generic [ref=e152]: 실행 로그
+                - generic [ref=e153]:
+                  - button "복사" [disabled] [ref=e154]:
+                    - img [ref=e155]
+                    - generic [ref=e158]: 복사
+                  - button "지우기" [disabled] [ref=e159]:
+                    - img [ref=e160]
+                    - generic [ref=e162]: 지우기
+              - generic [ref=e164]:
+                - img [ref=e165]
+                - generic [ref=e169]: 로그가 없습니다 — 작업을 시작하면 진행 상황이 표시됩니다
+          - generic [ref=e170]:
+            - generic [ref=e172]:
+              - generic [ref=e173]:
+                - img [ref=e175]
+                - generic [ref=e179]:
+                  - generic [ref=e180]: 저장 용량
+                  - generic [ref=e181]: 0 Bytes
+              - generic [ref=e183]:
+                - button "임시 파일 정리 24h+" [ref=e184] [cursor=pointer]:
+                  - img [ref=e185]
+                  - generic [ref=e188]:
+                    - text: 임시 파일 정리
+                    - emphasis [ref=e189]: 24h+
+                - button "전체 삭제 (tmp/uploads)" [ref=e190] [cursor=pointer]:
+                  - img [ref=e191]
+                  - generic [ref=e193]: 전체 삭제 (tmp/uploads)
+                - button "프로젝트 파일 관리" [ref=e194] [cursor=pointer]:
+                  - img [ref=e195]
+                  - generic [ref=e197]: 프로젝트 파일 관리
+            - generic [ref=e199]:
+              - generic [ref=e200]:
+                - img [ref=e201]
+                - generic [ref=e203]: 빠른 팁
+              - generic [ref=e204]:
+                - text: 파일을 끌어다 놓는 대신
+                - generic [ref=e205]: ⌘V
+                - text: /
+                - generic [ref=e206]: Ctrl+V
+                - text: 로 클립보드의 URL을 즉시 붙여넣을 수 있습니다.
+        - generic [ref=e207]:
+          - generic [ref=e208]: 2026 CS & Company. All rights reserved.
+          - generic [ref=e209]: ·
+          - generic [ref=e210]: 로컬 처리 — 업로드된 파일은 기기를 떠나지 않습니다
+  - region "Notifications (F8)":
+    - list

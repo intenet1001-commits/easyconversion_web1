@@ -75,7 +75,7 @@ export async function convertMedia({
           .noVideo();
       }
 
-      // 멈춤 감지 타이머 (30초 동안 진행 없으면 에러)
+      // 멈춤 감지 타이머 (5분 동안 진행 없으면 에러)
       const resetStuckTimer = () => {
         if (progressTimer) {
           clearInterval(progressTimer);
@@ -83,12 +83,12 @@ export async function convertMedia({
         stuckCounter = 0;
         progressTimer = setInterval(() => {
           stuckCounter++;
-          if (stuckCounter > 30) { // 30초
+          if (stuckCounter > 300) { // 300초 = 5분
             console.error('[FFMPEG] Process appears stuck, killing...');
             if (command) {
               command.kill('SIGKILL');
             }
-            reject(new Error('변환이 30초 이상 응답 없음 - 중단됨'));
+            reject(new Error('변환이 5분 이상 응답 없음 - 중단됨'));
           }
         }, 1000);
       };

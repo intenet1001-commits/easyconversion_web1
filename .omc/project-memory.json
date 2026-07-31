@@ -1,0 +1,348 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1777737558025,
+  "projectRoot": "/Users/gwanli/product_2026/easyconversion_web1",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "15.5.15",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "18.3.0",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "18.3.0",
+        "category": "frontend"
+      },
+      {
+        "name": "@playwright/test",
+        "version": "1.57.0",
+        "category": "testing"
+      },
+      {
+        "name": "playwright",
+        "version": "1.57.0",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build 2>&1 | tail -30",
+    "testCommand": "npm test",
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev -p 9005",
+      "build": "next build",
+      "start": "next start -p 9005",
+      "lint": "next lint",
+      "electron:dev": "NODE_ENV=development electron .",
+      "electron:build": "NODE_ENV=production next build && electron-builder",
+      "electron:build:mac": "NODE_ENV=production next build && electron-builder --mac dmg",
+      "electron:build:mac:app": "NODE_ENV=production next build && electron-builder --mac dir",
+      "test": "node tests/coordinator.js",
+      "test:headless": "HEADLESS=true node tests/coordinator.js",
+      "test:debug": "HEADLESS=false SLOW_MO=500 DEVTOOLS=true node tests/coordinator.js",
+      "test:explorer": "node -e \"const E = require('./tests/agents/explorer'); const {chromium} = require('playwright'); (async()=>{const b=await chromium.launch();const c=await b.newContext();const a=new E(c);await a.run();await b.close()})()\"",
+      "test:clean": "rm -rf tests/results tests/screenshots tests/logs"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": "ES modules",
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "app",
+      "components",
+      "lib",
+      "public"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "app": {
+      "path": "app",
+      "purpose": "Application code",
+      "fileCount": 3,
+      "lastAccessed": 1777737558015,
+      "keyFiles": [
+        "globals.css",
+        "layout.tsx",
+        "page.tsx"
+      ]
+    },
+    "components": {
+      "path": "components",
+      "purpose": "UI components",
+      "fileCount": 0,
+      "lastAccessed": 1777737558020,
+      "keyFiles": []
+    },
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 0,
+      "lastAccessed": 1777737558020,
+      "keyFiles": []
+    },
+    "electron": {
+      "path": "electron",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1777737558021,
+      "keyFiles": [
+        "main.js",
+        "preload.js"
+      ]
+    },
+    "hooks": {
+      "path": "hooks",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1777737558021,
+      "keyFiles": [
+        "use-toast.ts"
+      ]
+    },
+    "lib": {
+      "path": "lib",
+      "purpose": "Library code",
+      "fileCount": 11,
+      "lastAccessed": 1777737558021,
+      "keyFiles": [
+        "document-converter.ts",
+        "ffmpeg-merge.ts",
+        "ffmpeg-split.ts",
+        "ffmpeg-utils.ts",
+        "ffmpeg.ts"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 0,
+      "lastAccessed": 1777737558021,
+      "keyFiles": []
+    },
+    "store": {
+      "path": "store",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1777737558021,
+      "keyFiles": [
+        "useConversionStore.ts"
+      ]
+    },
+    "tmp": {
+      "path": "tmp",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1777737558021,
+      "keyFiles": []
+    },
+    "types": {
+      "path": "types",
+      "purpose": "Type definitions",
+      "fileCount": 2,
+      "lastAccessed": 1777737558021,
+      "keyFiles": [
+        "index.ts",
+        "modules.d.ts"
+      ]
+    },
+    "app/api": {
+      "path": "app/api",
+      "purpose": "API routes",
+      "fileCount": 0,
+      "lastAccessed": 1777737558022,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "app/api/upload/route.ts",
+      "accessCount": 14,
+      "lastAccessed": 1777824635246,
+      "type": "file"
+    },
+    {
+      "path": "components/tabs/MediaConvertTab.tsx",
+      "accessCount": 13,
+      "lastAccessed": 1777825370415,
+      "type": "file"
+    },
+    {
+      "path": "context.md",
+      "accessCount": 12,
+      "lastAccessed": 1777824943709,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 7,
+      "lastAccessed": 1777810805332,
+      "type": "file"
+    },
+    {
+      "path": "lib/download.ts",
+      "accessCount": 7,
+      "lastAccessed": 1777825729503,
+      "type": "file"
+    },
+    {
+      "path": "lib/file-validator.ts",
+      "accessCount": 6,
+      "lastAccessed": 1777810808928,
+      "type": "file"
+    },
+    {
+      "path": "components/common/LogViewer.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1777824751647,
+      "type": "file"
+    },
+    {
+      "path": "components/tabs/MediaSplitTab.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1777768054154,
+      "type": "file"
+    },
+    {
+      "path": "components/tabs/DocumentSplitTab.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1777768061513,
+      "type": "file"
+    },
+    {
+      "path": "components/tabs/SplitArchiveTab.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1777768063903,
+      "type": "file"
+    },
+    {
+      "path": "components/tabs/DocumentMergeTab.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1777768083470,
+      "type": "file"
+    },
+    {
+      "path": "electron/main.js",
+      "accessCount": 4,
+      "lastAccessed": 1777810803020,
+      "type": "file"
+    },
+    {
+      "path": "components/common/ProjectFilesDialog.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1777825721483,
+      "type": "file"
+    },
+    {
+      "path": "앱빌딩.command",
+      "accessCount": 3,
+      "lastAccessed": 1777637790993,
+      "type": "file"
+    },
+    {
+      "path": "components/tabs/ExtractArchiveTab.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1777768068322,
+      "type": "file"
+    },
+    {
+      "path": "tsconfig.json",
+      "accessCount": 2,
+      "lastAccessed": 1777637772321,
+      "type": "file"
+    },
+    {
+      "path": "lib/ffmpeg.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777825037731,
+      "type": "file"
+    },
+    {
+      "path": "next.config.js",
+      "accessCount": 1,
+      "lastAccessed": 1777637709465,
+      "type": "file"
+    },
+    {
+      "path": "실행.command",
+      "accessCount": 1,
+      "lastAccessed": 1777637715390,
+      "type": "file"
+    },
+    {
+      "path": "lib/document-converter.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777737773221,
+      "type": "file"
+    },
+    {
+      "path": "lib/upload-with-progress.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777824643827,
+      "type": "file"
+    },
+    {
+      "path": "app/api/media/convert/route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777824648985,
+      "type": "file"
+    },
+    {
+      "path": "store/useConversionStore.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777824892010,
+      "type": "file"
+    },
+    {
+      "path": "lib/sessionRestore.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777825319529,
+      "type": "file"
+    },
+    {
+      "path": "app/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777825342110,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

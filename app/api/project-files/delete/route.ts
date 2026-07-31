@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
     // 선택 삭제
     let deletedCount = 0;
     for (const filePath of filePaths) {
-      // /downloads/{sessionId}/{fileName} 형식
-      const fullPath = path.join(process.cwd(), 'public', filePath);
+      // /downloads/{sessionId}/{fileName} 형식 (list API가 URL 인코딩해서 내려준 경로이므로 디코딩)
+      const fullPath = path.join(process.cwd(), 'public', decodeURIComponent(filePath));
 
       if (existsSync(fullPath)) {
         await unlink(fullPath);

@@ -10,21 +10,22 @@ directories:
 
 files:
   - electron/**/*
-  - .next/**/*
-  - node_modules/**/*
+  - .next-build/**/*
   - package.json
   - next.config.js
   - public/**/*
+  - "!public/downloads/**/*"
   - "!dist/**/*"
   - "!build/**/*"
   - "!tmp/**/*"
-  - "!.next-prod/**/*"
+  - "!tests/**/*"
+  - "!**/*.map"
   - "!node_modules/@img/sharp-darwin-x64/**/*"
   - "!node_modules/@img/sharp-libvips-darwin-x64/**/*"
 
 asarUnpack:
   - "**/*.node"
-  - ".next/**/*"
+  - ".next-build/**/*"
   - "node_modules/next/**/*"
   - "node_modules/@next/**/*"
   - "node_modules/@swc/**/*"

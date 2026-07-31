@@ -11,7 +11,7 @@ export async function validateFile(
   }
 
   // 크기 확인
-  const maxSize = parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE || '524288000');
+  const maxSize = parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE || '107374182400'); // 100GB
   if (file.size > maxSize) {
     return {
       valid: false,

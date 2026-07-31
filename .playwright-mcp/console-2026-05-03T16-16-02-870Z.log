@@ -1,0 +1,27 @@
+[     370ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[     617ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cdn.jsdelivr.net/gh/orioncactus/pretendard/packages/pretendard/dist/web/variable/pretendardvariable.woff2:0
+[     635ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:9005/favicon.ico:0
+[   43566ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:9005/api/cleanup:0
+[   43649ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cdn.jsdelivr.net/gh/orioncactus/pretendard/packages/pretendard/dist/web/variable/pretendardvariable.woff2:0
+[   43869ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[   51378ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:9005/api/cleanup:0
+[   51449ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cdn.jsdelivr.net/gh/orioncactus/pretendard/packages/pretendard/dist/web/variable/pretendardvariable.woff2:0
+[   51666ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[   70628ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:9005/api/cleanup:0
+[   70912ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[   71150ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cdn.jsdelivr.net/gh/orioncactus/pretendard/packages/pretendard/dist/web/variable/pretendardvariable.woff2:0
+[   84089ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:196
+[   84394ms] [LOG] [Fast Refresh] done in 306ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[   84500ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cdn.jsdelivr.net/gh/orioncactus/pretendard/packages/pretendard/dist/web/variable/pretendardvariable.woff2:0
+[   91779ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:196
+[   91987ms] [LOG] [Fast Refresh] done in 207ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[   92038ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cdn.jsdelivr.net/gh/orioncactus/pretendard/packages/pretendard/dist/web/variable/pretendardvariable.woff2:0
+[  114687ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:196
+[  114931ms] [LOG] [Fast Refresh] done in 244ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  115001ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cdn.jsdelivr.net/gh/orioncactus/pretendard/packages/pretendard/dist/web/variable/pretendardvariable.woff2:0
+[  121449ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:196
+[  121627ms] [LOG] [Fast Refresh] done in 178ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  121686ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cdn.jsdelivr.net/gh/orioncactus/pretendard/packages/pretendard/dist/web/variable/pretendardvariable.woff2:0
+[  128209ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:196
+[  128402ms] [LOG] [Fast Refresh] done in 193ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  128470ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cdn.jsdelivr.net/gh/orioncactus/pretendard/packages/pretendard/dist/web/variable/pretendardvariable.woff2:0

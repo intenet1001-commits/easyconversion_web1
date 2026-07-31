@@ -1,10 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mkdir } from 'fs/promises';
+import { mkdir, readdir, rename, rm, stat } from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import type { Fields, Files } from 'formidable';
 import { createRequire } from 'module';
 import { Readable } from 'stream';
+
+const SESSION_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+async function cleanupOldSessions(uploadsDir: string) {
+  try {
+    const entries = await readdir(uploadsDir);
+    const now = Date.now();
+    await Promise.all(
+      entries.map(async (entry) => {
+        if (entry === 'temp') return;
+        const entryPath = path.join(uploadsDir, entry);
+        const s = await stat(entryPath).catch(() => null);
+        if (s && now - s.mtimeMs > SESSION_TTL_MS) {
+          await rm(entryPath, { recursive: true, force: true });
+          console.log(`[UPLOAD] Cleaned up old session: ${entry}`);
+        }
+      })
+    );
+  } catch {
+    // uploadsDir doesn't exist yet — no-op
+  }
+}
 
 const _require = createRequire(import.meta.url);
 const { formidable } = _require('formidable');
@@ -57,8 +79,12 @@ export async function POST(request: NextRequest) {
     const nodeReq = await toNodeRequest(request);
 
     // 임시 업로드 디렉토리
-    const tempUploadDir = path.join(process.cwd(), 'tmp', 'uploads', 'temp');
+    const uploadsDir = path.join(process.cwd(), 'tmp', 'uploads');
+    const tempUploadDir = path.join(uploadsDir, 'temp');
     await mkdir(tempUploadDir, { recursive: true });
+
+    // 오래된 세션 파일 정리 (2시간 초과)
+    await cleanupOldSessions(uploadsDir);
 
     console.log(`[UPLOAD] Temp directory: ${tempUploadDir}`);
 
@@ -66,7 +92,7 @@ export async function POST(request: NextRequest) {
     const form = formidable({
       uploadDir: tempUploadDir,
       keepExtensions: true,
-      maxFileSize: 53687091200, // 50GB
+      maxFileSize: 107374182400, // 100GB
       allowEmptyFiles: true,
       minFileSize: 0,
       multiples: true,
@@ -127,8 +153,7 @@ export async function POST(request: NextRequest) {
       console.log(`[UPLOAD] To: ${finalPath}`);
 
       // 임시 파일을 최종 위치로 이동
-      const fs = await import('fs/promises');
-      await fs.rename(file.filepath, finalPath);
+      await rename(file.filepath, finalPath);
 
       console.log(`[UPLOAD] File moved successfully: ${fileName}`);
 

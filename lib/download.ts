@@ -10,5 +10,8 @@ export async function downloadFileFromUrl(url: string, filename: string): Promis
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+  // 큰 파일(영상 등)은 브라우저/Electron 다운로드 매니저가 blob을 실제로 다 읽어가기까지
+  // 시간이 걸린다. 너무 일찍 revoke하면 "File wasn't available on site" 오류로 다운로드가
+  // 끊긴다. 넉넉하게 지연 후 해제한다.
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
 }

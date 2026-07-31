@@ -127,14 +127,28 @@ export function MediaConvertTab() {
       return;
     }
 
+    const phantomFiles = files.filter(f => f.file.size === 0 && f.size > 0);
+    if (phantomFiles.length > 0) {
+      toast({
+        title: '파일 재추가 필요',
+        description: `새로고침 후 복구된 파일 ${phantomFiles.length}개는 다시 드래그해서 추가해야 합니다.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsConverting(true);
     clearProgress();
     addLog(`변환 시작: ${files.length}개 파일 → ${outputFormat.toUpperCase()}`);
+
+    let successCount = 0;
+    let failCount = 0;
 
     try {
       // 각 파일을 순차적으로 처리 (업로드 → 변환)
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        let fileSuccess = false;
 
         addLog(`[${i + 1}/${files.length}] ${file.name} 처리 중...`);
         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
@@ -218,6 +232,7 @@ export function MediaConvertTab() {
                 });
                 addLog(`  변환 완료`);
                 fileCompleted = true;
+                fileSuccess = true;
               } else if (data.type === 'done') {
                 // 모든 변환 완료 신호
                 fileCompleted = true;
@@ -243,11 +258,21 @@ export function MediaConvertTab() {
           throw new Error(`${file.name} 변환이 완료되지 않았습니다`);
         }
 
-        addLog(`[${i + 1}/${files.length}] ${file.name} 완료 ✓`);
+        if (fileSuccess) {
+          successCount++;
+          addLog(`[${i + 1}/${files.length}] ${file.name} 완료 ✓`);
+        } else {
+          failCount++;
+          addLog(`[${i + 1}/${files.length}] ${file.name} 실패 ✗`);
+        }
       }
 
-      addLog('모든 변환 완료!');
-      toast({ title: '변환 완료', description: `${files.length}개 파일이 성공적으로 변환되었습니다.` });
+      addLog(`모든 변환 완료! (성공: ${successCount}, 실패: ${failCount})`);
+      if (failCount > 0) {
+        toast({ title: '변환 완료', description: `성공 ${successCount}개, 실패 ${failCount}개` });
+      } else {
+        toast({ title: '변환 완료', description: `${files.length}개 파일이 성공적으로 변환되었습니다.` });
+      }
 
     } catch (error: any) {
       toast({ title: '변환 실패', description: error.message, variant: 'destructive' });
@@ -278,6 +303,9 @@ export function MediaConvertTab() {
                   <div>
                     <p className="font-medium">{file.name}</p>
                     <p className="text-sm text-muted-foreground">{formatFileSize(file.size)}</p>
+                    {file.file.size === 0 && file.size > 0 && (
+                      <p className="text-xs text-destructive">⚠ 새로고침 후 재추가 필요</p>
+                    )}
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => removeFile(file.id)}>
                     <X className="h-4 w-4" />
@@ -360,9 +388,20 @@ export function MediaConvertTab() {
             )}
           </div>
           <div className="space-y-4">
-            {progressList.map((p) => (
+            {progressList.map((p) => {
+              const sourceExt = p.fileName.substring(p.fileName.lastIndexOf('.') + 1).toLowerCase();
+              const targetExt = (p.outputUrl
+                ? p.outputUrl.substring(p.outputUrl.lastIndexOf('.') + 1)
+                : outputFormat
+              ).toLowerCase();
+              const baseName = p.fileName.replace(/\.[^/.]+$/, '');
+              const progressLabel = sourceExt === targetExt
+                ? p.fileName
+                : `${p.fileName} → .${targetExt}`;
+
+              return (
               <div key={p.fileId}>
-                <ProgressBar value={p.progress} label={p.fileName} />
+                <ProgressBar value={p.progress} label={progressLabel} />
                 {p.status === 'completed' && p.outputUrl && (
                   <div className="flex items-center gap-2 mt-2 p-2 border rounded">
                     <button
@@ -375,24 +414,31 @@ export function MediaConvertTab() {
                         <Square className="h-5 w-5 text-muted-foreground" />
                       )}
                     </button>
-                    <Input
-                      placeholder="파일명 입력 (선택사항)"
-                      value={fileNames[p.fileId] || ''}
-                      onChange={(e) => updateFileName(p.fileId, e.target.value)}
-                      className="flex-1"
-                    />
-                    <a
-                      href={p.outputUrl}
-                      download={fileNames[p.fileId] ? `${fileNames[p.fileId]}${p.outputUrl.substring(p.outputUrl.lastIndexOf('.'))}` : ''}
+                    <div className="flex-1 flex items-center gap-1">
+                      <Input
+                        placeholder={baseName}
+                        value={fileNames[p.fileId] || ''}
+                        onChange={(e) => updateFileName(p.fileId, e.target.value)}
+                        className="flex-1"
+                      />
+                      <span className="text-sm text-muted-foreground flex-shrink-0">.{targetExt}</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const ext = p.outputUrl!.substring(p.outputUrl!.lastIndexOf('.'));
+                        const filename = fileNames[p.fileId] ? `${fileNames[p.fileId]}${ext}` : p.outputUrl!.split('/').pop() || '';
+                        downloadFileFromUrl(p.outputUrl!, filename);
+                      }}
                       className="inline-flex items-center text-sm text-primary flex-shrink-0"
                     >
                       <Download className="h-4 w-4 mr-1" />
                       다운로드
-                    </a>
+                    </button>
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </Card>
       )}
